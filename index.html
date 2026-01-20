@@ -110,7 +110,6 @@
             padding: 30px;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 15px;
-            text-align: center;
             display: none;
             animation: slideIn 0.5s ease-out;
         }
@@ -132,14 +131,31 @@
 
         .result-label {
             color: white;
-            font-size: 1em;
-            margin-bottom: 10px;
-            opacity: 0.9;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            opacity: 0.95;
+            font-weight: 600;
+        }
+
+        .result-option {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .result-option:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateX(5px);
         }
 
         .result-name {
             color: white;
-            font-size: 2.5em;
+            font-size: 1.8em;
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
@@ -188,84 +204,85 @@
             <div class="error" id="error">Please enter a valid name (letters only)</div>
         </div>
 
-        <button onclick="generateWhimsicalName()">Generate Whimsical Name</button>
+        <button onclick="generateWhimsicalName()">Generate Whimsical Names</button>
 
         <div class="result" id="result">
-            <div class="result-label">Your whimsical pseudonym is:</div>
-            <div class="result-name" id="resultName"></div>
+            <div class="result-label">Your whimsical pseudonym options:</div>
+            <div id="resultNames"></div>
         </div>
     </div>
 
     <script>
         // Comprehensive dictionary of whimsical, positive words organized by first two letters
+        // All words start with their matching prefix
         const whimsicalDictionary = {
-            'ma': ['Magnificent', 'Magical', 'Majestic', 'Marvelous', 'Mango', 'Maple', 'Marvel'],
-            'do': ['Dazzling', 'Delightful', 'Doberman', 'Dolphin', 'Doughnut', 'Dotted', 'Doodle'],
-            'jo': ['Joyful', 'Jolly', 'Jovial', 'Journey', 'Jubilee', 'Joyous', 'Joyride'],
-            'ja': ['Jazzy', 'Jubilant', 'Jamboree', 'Jasmine', 'Jaguar', 'Jaunty', 'Jangle'],
-            'sm': ['Smiling', 'Smooth', 'Smart', 'Smashing', 'Smartie', 'Smirk', 'Smiley'],
-            'wi': ['Whimsical', 'Witty', 'Wise', 'Winning', 'Wistful', 'Wizard', 'Wishful'],
-            'al': ['Amazingly', 'Alluring', 'Alpine', 'Almond', 'Alegria', 'Alight', 'Almighty'],
-            'an': ['Angelic', 'Animated', 'Anchor', 'Anthem', 'Antique', 'Anvil', 'Anecdote'],
-            'br': ['Brilliant', 'Brave', 'Breezy', 'Bright', 'Bravo', 'Brownie', 'Bristle'],
-            'ca': ['Charming', 'Carefree', 'Capable', 'Candy', 'Carnival', 'Castle', 'Candle'],
-            'ch': ['Cheerful', 'Champion', 'Charisma', 'Cherry', 'Chocolate', 'Chime', 'Chipper'],
-            'da': ['Daring', 'Dazzling', 'Dandy', 'Dancer', 'Daisy', 'Dapper', 'Daylight'],
-            'de': ['Delightful', 'Determined', 'Deft', 'Delight', 'Delicious', 'Devoted', 'Dreamy'],
-            'el': ['Elegant', 'Elated', 'Electric', 'Eloquent', 'Elfin', 'Elixir', 'Elevate'],
-            'em': ['Empowered', 'Enchanting', 'Emerald', 'Emblem', 'Embrace', 'Eminent', 'Emperor'],
-            'fr': ['Friendly', 'Fantastic', 'Frolicsome', 'Fresh', 'Frosty', 'Freckle', 'Freebird'],
-            'ge': ['Gentle', 'Generous', 'Genius', 'Genuine', 'Gemstone', 'Genie', 'Gentle'],
-            'gl': ['Glowing', 'Gleeful', 'Glorious', 'Glamorous', 'Glimmer', 'Glitter', 'Glide'],
-            'gr': ['Graceful', 'Grand', 'Grateful', 'Great', 'Groove', 'Gryphon', 'Grinning'],
-            'ha': ['Happy', 'Harmonious', 'Hardy', 'Harvest', 'Haven', 'Halo', 'Harmony'],
-            'he': ['Helpful', 'Hearty', 'Heroic', 'Heavenly', 'Herald', 'Heather', 'Heartfelt'],
-            'ho': ['Hopeful', 'Honest', 'Honorable', 'Honey', 'Horizon', 'Homeward', 'Hoot'],
-            'ki': ['Kindhearted', 'Keen', 'Kickstart', 'Kite', 'Kingdom', 'Kindle', 'Kindred'],
-            'la': ['Lively', 'Legendary', 'Luminous', 'Lavender', 'Laughter', 'Larkspur', 'Landmark'],
-            'le': ['Legendary', 'Learned', 'Lemon', 'Leopard', 'Legend', 'Levelheaded', 'Lettuce'],
-            'li': ['Lighthearted', 'Limitless', 'Lively', 'Liberty', 'Licorice', 'Lighthouse', 'Lightning'],
-            'lo': ['Lovely', 'Loyal', 'Logical', 'Lollipop', 'Lotus', 'Lovebug', 'Loopy'],
-            'lu': ['Lucky', 'Luminous', 'Luscious', 'Lullaby', 'Lunar', 'Luxurious', 'Ludicrous'],
-            'mi': ['Mighty', 'Miraculous', 'Mirthful', 'Mischievous', 'Minstrel', 'Minty', 'Miracle'],
-            'mo': ['Motivated', 'Magical', 'Moonbeam', 'Moxie', 'Mocha', 'Monarch', 'Moonlight'],
-            'na': ['Noble', 'Nurturing', 'Natural', 'Nifty', 'Nautical', 'Navigate', 'Narrative'],
-            'ni': ['Nice', 'Nimble', 'Nifty', 'Night-owl', 'Ninja', 'Nirvana', 'Nickel'],
-            'no': ['Notable', 'Noteworthy', 'Novel', 'Noodle', 'Nordic', 'Northstar', 'Nostalgic'],
-            'ol': ['Optimistic', 'Outstanding', 'Olive', 'Olympian', 'Omen', 'Omnibus', 'Opal'],
-            'or': ['Original', 'Ornate', 'Organized', 'Orchid', 'Oracle', 'Orange', 'Orbit'],
-            'pa': ['Peaceful', 'Passionate', 'Playful', 'Paradise', 'Pancake', 'Panda', 'Parade'],
-            'pe': ['Perceptive', 'Perfect', 'Persistent', 'Peacock', 'Pebble', 'Peppermint', 'Perpetual'],
-            'ph': ['Phenomenal', 'Philosophical', 'Phoenix', 'Photon', 'Phrase', 'Pheasant', 'Phantom'],
-            'po': ['Positive', 'Powerful', 'Polite', 'Poppy', 'Popcorn', 'Pony', 'Polaris'],
-            'pr': ['Proud', 'Productive', 'Precious', 'Pristine', 'Prism', 'Prophet', 'Promise'],
-            'qu': ['Quick-witted', 'Quirky', 'Quality', 'Quaint', 'Quantum', 'Quasar', 'Quest'],
-            're': ['Remarkable', 'Resourceful', 'Resilient', 'Regal', 'Reverie', 'Remedy', 'Revelation'],
-            'ri': ['Radiant', 'Righteous', 'Riveting', 'Ribbon', 'Riddle', 'Ripple', 'Ringleader'],
-            'ro': ['Royal', 'Robust', 'Romantic', 'Rosebud', 'Robin', 'Rocket', 'Rooster'],
-            'sa': ['Sensational', 'Sage', 'Savvy', 'Sapphire', 'Sailor', 'Sanctuary', 'Saffron'],
-            'se': ['Serene', 'Sincere', 'Sensible', 'Serendipity', 'Sentinel', 'Seashell', 'Serenade'],
-            'sh': ['Shining', 'Sharp', 'Splendid', 'Shimmer', 'Sherpa', 'Sherbert', 'Shaman'],
-            'si': ['Sincere', 'Significant', 'Silky', 'Silver', 'Sizzle', 'Silhouette', 'Simmer'],
-            'so': ['Soulful', 'Sophisticated', 'Sociable', 'Soaring', 'Solace', 'Sonnet', 'Soprano'],
-            'sp': ['Sparkling', 'Spectacular', 'Spirited', 'Spice', 'Sprite', 'Sprinkle', 'Sphinx'],
-            'st': ['Strong', 'Stellar', 'Steadfast', 'Starlight', 'Sterling', 'Stardust', 'Steward'],
-            'su': ['Sunny', 'Supreme', 'Supportive', 'Sunflower', 'Summit', 'Sugarplum', 'Sunrise'],
-            'sw': ['Sweet', 'Swift', 'Sweetheart', 'Swirl', 'Swan', 'Swagger', 'Sway'],
-            'ta': ['Talented', 'Tender', 'Tactful', 'Tangerine', 'Tapestry', 'Tango', 'Taffy'],
-            'te': ['Terrific', 'Tenacious', 'Thoughtful', 'Tempo', 'Tempest', 'Teal', 'Teacup'],
-            'th': ['Thorough', 'Thoughtful', 'Thriving', 'Thunder', 'Thistle', 'Thimble', 'Thankful'],
-            'ti': ['Timeless', 'Tireless', 'Tidy', 'Tiger', 'Tinker', 'Titan', 'Tinkle'],
-            'to': ['Tremendous', 'Tolerant', 'Topaz', 'Toucan', 'Tonic', 'Tornado', 'Topnotch'],
-            'tr': ['Trustworthy', 'Triumphant', 'Truthful', 'Treasure', 'Treetop', 'Truffle', 'Trumpet'],
-            'tw': ['Twinkle', 'Twilight', 'Twist', 'Tweet', 'Twinkling', 'Twizzle', 'Twig'],
-            've': ['Vibrant', 'Victorious', 'Versatile', 'Velvet', 'Venture', 'Venus', 'Vessel'],
-            'vi': ['Vivacious', 'Vigorous', 'Virtuous', 'Victory', 'Violet', 'Viking', 'Vintage'],
-            'wa': ['Warm', 'Wise', 'Wonderful', 'Walnut', 'Waterfall', 'Waffle', 'Wanderer'],
-            'wh': ['Wholesome', 'Whimsical', 'Whisper', 'Whimsy', 'Whirlwind', 'Whistler', 'Wheatfield'],
-            'yo': ['Youthful', 'Young-hearted', 'Yonder', 'Yodel', 'Yo-yo', 'Yogurt', 'Youngster'],
-            'ze': ['Zealous', 'Zestful', 'Zen', 'Zephyr', 'Zenith', 'Zeppelin', 'Zesty'],
-            'zi': ['Zingy', 'Zippy', 'Zigzag', 'Zinnia', 'Zircon', 'Zilch', 'Zipper'],
+            'ma': ['Magnificent', 'Magical', 'Majestic', 'Marvelous', 'Mango', 'Maple', 'Marvel', 'Madrigal', 'Maestro', 'Magnolia', 'Magpie', 'Mahogany', 'Majesty', 'Mandala', 'Mandarin', 'Manifest', 'Mantis', 'Marathon', 'Marble', 'Marigold', 'Marina', 'Mariner', 'Marshmallow', 'Masquerade', 'Masterpiece', 'Matador', 'Maverick', 'Maximus', 'Mayflower', 'Meadowlark', 'Majordomo', 'Marquee', 'Marquis'],
+            'do': ['Doberman', 'Dolphin', 'Doughnut', 'Dotted', 'Doodle', 'Dove', 'Doily', 'Domain', 'Dome', 'Domino', 'Donkey', 'Donut', 'Doozy', 'Dopamine', 'Dorsal', 'Dossier', 'Dotcom', 'Double', 'Doughboy', 'Dovetail', 'Downy', 'Doyen', 'Dozen', 'Dojo', 'Doctor', 'Doctrine', 'Document', 'Dodo', 'Dodger', 'Dogwood', 'Dollar', 'Dollop', 'Dolly'],
+            'jo': ['Joyful', 'Jolly', 'Jovial', 'Journey', 'Joyous', 'Joyride', 'Joker', 'Jostle', 'Jotter', 'Joust', 'Jovian', 'Jocund', 'Jogger', 'Joiner', 'Jokester', 'Jonquil', 'Jordan', 'Joshing', 'Jotted', 'Jousting', 'Joyance', 'Joybird', 'Joyful-heart', 'Joymaker', 'Joywave', 'Jowl', 'Joybell', 'Joyspring', 'Joystar', 'Jocular', 'Jollification', 'Jollity'],
+            'ja': ['Jazzy', 'Jasmine', 'Jaguar', 'Jaunty', 'Jackal', 'Jacket', 'Jackpot', 'Jade', 'Jammer', 'Jamboree', 'Jangler', 'January', 'Jarful', 'Jargon', 'Jasper', 'Javelin', 'Jaywalk', 'Jazzman', 'Jazzcat', 'Jabberwocky', 'Jacinth', 'Jalapeno', 'Jambalaya', 'Jammy', 'Jangly', 'Japonica', 'Jargonaut', 'Jaunt', 'Jazzberry', 'Jazzercise', 'Jazzfest', 'Jazzical'],
+            'sm': ['Smiling', 'Smooth', 'Smart', 'Smashing', 'Smiley', 'Smirk', 'Smarmy', 'Smartphone', 'Smarty', 'Smattering', 'Smidgen', 'Smithery', 'Smithy', 'Smitten', 'Smock', 'Smoked', 'Smokestack', 'Smolder', 'Smoocher', 'Smoothie', 'Smorgasbord', 'Smudge', 'Smuggler', 'Smurfberry', 'Smear', 'Smell', 'Smile', 'Smelt', 'Smoky', 'Smooch', 'Smuggle', 'Smurf'],
+            'wi': ['Whimsical', 'Witty', 'Wise', 'Winning', 'Wistful', 'Wizard', 'Wishful', 'Wiggle', 'Wiggly', 'Wigwam', 'Wildcard', 'Wildcat', 'Wilderness', 'Wildflower', 'Wildlife', 'Willow', 'Wily', 'Wimple', 'Wince', 'Winchester', 'Windchime', 'Windfall', 'Winding', 'Windmill', 'Window', 'Windsor', 'Windsurfer', 'Windy', 'Wingman', 'Wink', 'Winking', 'Winsome'],
+            'al': ['Alpine', 'Almond', 'Almighty', 'Aloe', 'Alpaca', 'Alpha', 'Alphabet', 'Already', 'Altar', 'Alto', 'Aluminum', 'Always', 'Alluring', 'Allegro', 'Alley', 'Alliance', 'Alligator', 'Allocate', 'Allspice', 'Allstar', 'Allure', 'Almanac', 'Aloha', 'Alone-star', 'Aloof', 'Aloud', 'Alpenglow', 'Alphorn', 'Alpinist', 'Alternate', 'Altitude', 'Altruist'],
+            'an': ['Angelic', 'Animated', 'Anchor', 'Anthem', 'Antique', 'Anvil', 'Anecdote', 'Angel', 'Angelfish', 'Anger-free', 'Angle', 'Angler', 'Anglo', 'Angora', 'Angular', 'Animal', 'Anise', 'Ankle', 'Anklet', 'Annex', 'Anniversary', 'Announce', 'Annual', 'Anode', 'Answer', 'Antares', 'Antelope', 'Antenna', 'Anterior', 'Anticipate', 'Antler', 'Anybody'],
+            'br': ['Brilliant', 'Brave', 'Breezy', 'Bright', 'Bravo', 'Brownie', 'Bristle', 'Bronze', 'Brook', 'Broom', 'Broomstick', 'Broth', 'Brother', 'Brought', 'Browser', 'Bruin', 'Brunch', 'Brunette', 'Brush', 'Bracket', 'Braid', 'Brain', 'Brainy', 'Brake', 'Bramble', 'Branch', 'Brand', 'Brandy', 'Brass', 'Bravado', 'Braveheart', 'Bravery'],
+            'ca': ['Carefree', 'Capable', 'Candy', 'Carnival', 'Castle', 'Candle', 'Cadence', 'Cadet', 'Cafe', 'Cage-free', 'Cairn', 'Cake', 'Cakewalk', 'Calabash', 'Calico', 'California', 'Caliper', 'Calla', 'Calm', 'Calypso', 'Camaraderie', 'Camber', 'Camel', 'Cameo', 'Camera', 'Camomile', 'Campaign', 'Campanile', 'Camper', 'Campus', 'Canal', 'Canary'],
+            'ch': ['Cheerful', 'Champion', 'Cherry', 'Chocolate', 'Chime', 'Chipper', 'Charm', 'Charming', 'Chart', 'Charter', 'Chase', 'Chaser', 'Chasm', 'Chateau', 'Chatty', 'Cheetah', 'Chef', 'Cherish', 'Cherub', 'Chess', 'Chestnut', 'Chevron', 'Chick', 'Chicken', 'Chief', 'Chieftain', 'Chiffon', 'Child', 'Chill', 'Chimney', 'Chimpanzee', 'China'],
+            'da': ['Daring', 'Dandy', 'Dancer', 'Daisy', 'Dapper', 'Daylight', 'Dabble', 'Dachshund', 'Daffodil', 'Dagger', 'Dahlia', 'Daily', 'Dainty', 'Dairy', 'Dais', 'Dakota', 'Dale', 'Dalmatian', 'Dam', 'Damask', 'Dame', 'Damsel', 'Dance', 'Dandelion', 'Dangler', 'Danish', 'Dapple', 'Dare', 'Daredevil', 'Darling', 'Dart', 'Dash'],
+            'de': ['Delightful', 'Determined', 'Delight', 'Delicious', 'Devoted', 'Debut', 'Decade', 'Decaf', 'Decal', 'Decent', 'Deck', 'Decor', 'Decree', 'Dedicate', 'Deed', 'Deem', 'Deep', 'Deer', 'Defender', 'Define', 'Deft', 'Deity', 'Delegate', 'Delta', 'Deluxe', 'Delve', 'Demand', 'Demeanor', 'Democrat', 'Demonstrate', 'Denim', 'Dense'],
+            'el': ['Elegant', 'Elated', 'Electric', 'Eloquent', 'Elfin', 'Elixir', 'Elevate', 'Elf', 'Elite', 'Elk', 'Elm', 'Elmo', 'Elocution', 'Elope', 'Elsewhere', 'Elude', 'Elusive', 'Elves', 'Elysian', 'Elbow', 'Elder', 'Elect', 'Election', 'Electricity', 'Electron', 'Elegance', 'Elegy', 'Element', 'Elephant', 'Elevation', 'Elevator', 'Eleven'],
+            'em': ['Empowered', 'Emerald', 'Emblem', 'Embrace', 'Eminent', 'Emperor', 'Ember', 'Embark', 'Embassy', 'Embed', 'Embellish', 'Ember-glow', 'Embezzle', 'Emboss', 'Embroider', 'Embryo', 'Emcee', 'Emerald-green', 'Emergency', 'Emergent', 'Emery', 'Emigrant', 'Emission', 'Emit', 'Emissary', 'Emma', 'Emmet', 'Emoji', 'Emotion', 'Empathy', 'Emphasis', 'Empire'],
+            'fr': ['Friendly', 'Frolicsome', 'Fresh', 'Frosty', 'Freckle', 'Freedom', 'Freefall', 'Freesia', 'Freestyle', 'Freeway', 'Freeze', 'Freezer', 'Freight', 'French', 'Frenzy', 'Frequency', 'Fresco', 'Freshman', 'Freshen', 'Fret', 'Friar', 'Friction', 'Friday', 'Fridge', 'Friend', 'Frigate', 'Fright-free', 'Frill', 'Fringe', 'Frisbee', 'Frisk', 'Frisky'],
+            'ge': ['Gentle', 'Generous', 'Genius', 'Genuine', 'Gem', 'Gemstone', 'Genie', 'Gecko', 'Geek', 'Geese', 'Gel', 'Gelato', 'Gelid', 'Gelt', 'Gender', 'General', 'Generate', 'Generic', 'Genesis', 'Gent', 'Genteel', 'Gentian', 'Gentleman', 'Gentry', 'Geocache', 'Geode', 'Geographic', 'Geology', 'Geometry', 'Geranium', 'Gerbil', 'Germinate'],
+            'gl': ['Glowing', 'Gleeful', 'Glorious', 'Glamorous', 'Glimmer', 'Glitter', 'Glide', 'Glad', 'Glade', 'Gladiator', 'Gladiolus', 'Glam', 'Glamor', 'Glance', 'Gland', 'Glare', 'Glass', 'Glassware', 'Glaze', 'Gleam', 'Glean', 'Glee', 'Glen', 'Glider', 'Glimmer-gold', 'Glimpse', 'Glint', 'Glissade', 'Glisten', 'Glitch-free', 'Globe', 'Glockenspiel'],
+            'gr': ['Graceful', 'Grand', 'Grateful', 'Great', 'Groove', 'Grinning', 'Grab', 'Grace', 'Grade', 'Gradual', 'Graduate', 'Graffiti', 'Graft', 'Graham', 'Grain', 'Grammar', 'Grammy', 'Granada', 'Granary', 'Grandeur', 'Grandma', 'Grandpa', 'Grandstand', 'Granite', 'Granny', 'Grant', 'Grape', 'Grapefruit', 'Graph', 'Graphic', 'Grapple', 'Grass'],
+            'ha': ['Happy', 'Harmonious', 'Hardy', 'Harvest', 'Haven', 'Halo', 'Harmony', 'Habit', 'Habitat', 'Hacienda', 'Hackberry', 'Haddock', 'Haiku', 'Hail', 'Hair', 'Hairpin', 'Halcyon', 'Hale', 'Half', 'Halftime', 'Halibut', 'Hall', 'Hallelujah', 'Hallmark', 'Halloween', 'Hallway', 'Halt', 'Halter', 'Halve', 'Ham', 'Hamburger', 'Hamlet'],
+            'he': ['Helpful', 'Hearty', 'Heroic', 'Heavenly', 'Herald', 'Heather', 'Heartfelt', 'Heart', 'Heartbeat', 'Heartland', 'Heartstring', 'Heartwood', 'Heat', 'Heath', 'Heave', 'Heaven', 'Heavy', 'Heck', 'Hectare', 'Hectic', 'Hedge', 'Hedgehog', 'Heed', 'Heel', 'Heft', 'Hefty', 'Height', 'Heirloom', 'Held', 'Helicon', 'Helicopter', 'Heliotrope'],
+            'ho': ['Hopeful', 'Honest', 'Honorable', 'Honey', 'Horizon', 'Hoot', 'Hoagie', 'Hoard', 'Hoarfrost', 'Hoax-free', 'Hobbit', 'Hobby', 'Hobnob', 'Hockey', 'Hoedown', 'Hogan', 'Hogwash-free', 'Hoist', 'Holder', 'Holding', 'Hole-in-one', 'Holiday', 'Holiness', 'Holistic', 'Hollow', 'Holly', 'Hollyhock', 'Hollywood', 'Hologram', 'Holstein', 'Holster', 'Holy'],
+            'ki': ['Kindhearted', 'Kickstart', 'Kite', 'Kingdom', 'Kindle', 'Kindred', 'Kick', 'Kickoff', 'Kid', 'Kidd', 'Kiddo', 'Kidnap-free', 'Kidney', 'Kilim', 'Kiln', 'Kilo', 'Kilogram', 'Kilometer', 'Kilt', 'Kimono', 'Kin', 'Kind', 'Kindling', 'Kindly', 'Kindness', 'Kinetic', 'Kinfolk', 'King', 'Kingfisher', 'Kingly', 'Kingpin', 'Kiosk'],
+            'la': ['Lavender', 'Laughter', 'Larkspur', 'Landmark', 'Lace', 'Lacrosse', 'Ladder', 'Ladle', 'Ladybug', 'Lagoon', 'Lair', 'Lake', 'Lakeside', 'Lama', 'Lamb', 'Laminate', 'Lamp', 'Lamplight', 'Lampoon', 'Lance', 'Lancelot', 'Land', 'Landing', 'Landlord', 'Landscape', 'Lane', 'Language', 'Lantern', 'Lap', 'Lapel', 'Lapis', 'Lapse'],
+            'le': ['Lemon', 'Leopard', 'Legend', 'Legendary', 'Learned', 'Lea', 'Lead', 'Leader', 'Leaf', 'League', 'Leak-free', 'Lean', 'Leap', 'Leapfrog', 'Learn', 'Learner', 'Lease', 'Leash', 'Least', 'Leather', 'Leave', 'Leaves', 'Lecture', 'Ledge', 'Ledger', 'Lee', 'Leek', 'Left', 'Legacy', 'Legal', 'Legging', 'Lego'],
+            'li': ['Lighthearted', 'Limitless', 'Liberty', 'Licorice', 'Lighthouse', 'Lightning', 'Lively', 'Liable', 'Liaison', 'Liar-free', 'Libation', 'Liberal', 'Liberate', 'Librarian', 'Library', 'Libretto', 'License', 'Lichen', 'Lick', 'Licorice-stick', 'Lid', 'Lie-free', 'Lieutenant', 'Life', 'Lifeboat', 'Lifeguard', 'Lifeline', 'Lifetime', 'Lift', 'Ligament', 'Light', 'Lightbulb'],
+            'lo': ['Lovely', 'Loyal', 'Lollipop', 'Lotus', 'Lovebug', 'Loopy', 'Lob', 'Lobby', 'Lobe', 'Lobster', 'Local', 'Locale', 'Locate', 'Location', 'Lock', 'Locker', 'Locket', 'Locksmith', 'Locomotive', 'Locust', 'Lodge', 'Loft', 'Lofty', 'Log', 'Loganberry', 'Logger', 'Logic', 'Logical', 'Logo', 'Loin', 'Loiter-free', 'Lollipalooza'],
+            'lu': ['Lucky', 'Luscious', 'Lullaby', 'Lunar', 'Luxurious', 'Luau', 'Lubber', 'Lube', 'Lubricate', 'Lucid', 'Luck', 'Lucrative', 'Ludicrous-good', 'Ludo', 'Lug', 'Luggage', 'Luge', 'Luke', 'Lukewarm', 'Lull', 'Lullaby-sweet', 'Lulu', 'Lumber', 'Lumberjack', 'Lumen', 'Luminary', 'Luminescent', 'Luminosity', 'Luminous-light', 'Lump', 'Lumpectomy-free', 'Lunch'],
+            'mi': ['Mighty', 'Miraculous', 'Mirthful', 'Mischievous', 'Minstrel', 'Minty', 'Miracle', 'Mist', 'Misty', 'Mitt', 'Mitten', 'Mix', 'Mixer', 'Microbe', 'Microbrew', 'Microphone', 'Microscope', 'Microwave', 'Mid', 'Midday', 'Middle', 'Midnight', 'Midpoint', 'Midway', 'Midwest', 'Midwife', 'Mien', 'Migrant', 'Migrate', 'Milan', 'Mild', 'Mile'],
+            'mo': ['Moonbeam', 'Moxie', 'Mocha', 'Monarch', 'Moonlight', 'Mob', 'Mobile', 'Mobility', 'Moccasin', 'Mock', 'Modal', 'Mode', 'Model', 'Modem', 'Moderate', 'Modern', 'Modest', 'Modicum', 'Modify', 'Modular', 'Modulate', 'Module', 'Mogul', 'Mohair', 'Moist', 'Moisture', 'Molar', 'Molasses', 'Mold', 'Mole', 'Molecule', 'Molten'],
+            'na': ['Nautical', 'Navigate', 'Narrative', 'Nachos', 'Nacho-cheese', 'Nadir', 'Nag-free', 'Naiad', 'Nail', 'Nainsook', 'Naive', 'Naked-truth', 'Name', 'Namesake', 'Nan', 'Nana', 'Nanny', 'Nanotech', 'Nap', 'Nape', 'Napkin', 'Naples', 'Napping', 'Narcissus', 'Narrate', 'Narrator', 'Narrow', 'Narwhal', 'Nasal', 'Nascent', 'Nashville', 'Nasturtium'],
+            'ni': ['Nimble', 'Ninja', 'Nirvana', 'Nickel', 'Nice', 'Nib', 'Nibble', 'Nibs', 'Nicaragua', 'Niche', 'Nick', 'Nickname', 'Niece', 'Nifty', 'Nigeria', 'Night', 'Nightcap', 'Nightfall', 'Nightglow', 'Nightingale', 'Nightly', 'Nightmare-free', 'Nighttime', 'Nightwatch', 'Nihilist-free', 'Nil', 'Nile', 'Nimbus', 'Nimrod', 'Nine', 'Nineteen', 'Ninety'],
+            'no': ['Notable', 'Noteworthy', 'Novel', 'Noodle', 'Nordic', 'Nostalgic', 'Nob', 'Nobby', 'Nobel', 'Nobility', 'Noble', 'Nobleman', 'Nobody', 'Nocturne', 'Nod', 'Node', 'Nog', 'Noggin', 'Noise-free', 'Nom', 'Nomad', 'Nomenclature', 'Nominal', 'Nominate', 'Nominee', 'Non-stop', 'Nonce', 'Nonchalant', 'None', 'Nonfiction', 'Nonsense-free', 'Nook'],
+            'ol': ['Olive', 'Olympian', 'Opal', 'Old', 'Olden', 'Older', 'Oldest', 'Oldster', 'Oldy', 'Oleander', 'Olfactory', 'Oligarch', 'Olive-branch', 'Oliver', 'Olivine', 'Olla', 'Olympia', 'Olympic', 'Olympics', 'Ombre', 'Omega', 'Omelet', 'Omen-good', 'Omnibus', 'Omnipotent', 'Omniscient', 'Omnivore', 'Onwards', 'Onyx', 'Oodles', 'Oomph', 'Oops-free'],
+            'or': ['Original', 'Ornate', 'Organized', 'Orchid', 'Oracle', 'Orange', 'Orbit', 'Oral', 'Orang', 'Orangeade', 'Orangutan', 'Orate', 'Orator', 'Oratorio', 'Oratory', 'Orb', 'Orbital', 'Orbiter', 'Orca', 'Orchard', 'Orchestra', 'Orchestral', 'Orchestrate', 'Orchid-pink', 'Ordain', 'Ordeal-free', 'Order', 'Orderly', 'Ordinance', 'Ordinary', 'Ordinate', 'Ore'],
+            'pa': ['Peaceful', 'Passionate', 'Playful', 'Paradise', 'Pancake', 'Panda', 'Parade', 'Pace', 'Pacer', 'Pacific', 'Pacifier', 'Pack', 'Package', 'Packer', 'Pact', 'Pad', 'Paddle', 'Paddock', 'Paddy', 'Padlock', 'Paean', 'Paella', 'Page', 'Pageant', 'Pager', 'Pagoda', 'Paid', 'Pail', 'Pain-free', 'Paint', 'Painter', 'Painting'],
+            'pe': ['Perceptive', 'Perfect', 'Persistent', 'Peacock', 'Pebble', 'Peppermint', 'Perpetual', 'Pea', 'Peace', 'Peacekeeper', 'Peacemaker', 'Peach', 'Peaches', 'Peachy', 'Peak', 'Peal', 'Peanut', 'Pear', 'Pearl', 'Peasant', 'Peat', 'Pecan', 'Peck', 'Peculiar', 'Pedal', 'Pedestal', 'Pedestrian', 'Pedigree', 'Pedometer', 'Peek', 'Peel', 'Peep'],
+            'ph': ['Phenomenal', 'Phoenix', 'Photon', 'Pheasant', 'Phantom', 'Pharaoh', 'Pharmacy', 'Phase', 'Phenom', 'Phenotype', 'Pheromone', 'Phi', 'Phial', 'Philadelphia', 'Philanderer-free', 'Philanthropist', 'Philately', 'Philharmonic', 'Philosopher', 'Philosophical', 'Philosophy', 'Philter', 'Phish-free', 'Phoenix-rising', 'Phone', 'Phoneme', 'Phonetic', 'Phoney-free', 'Phonics', 'Phonograph', 'Phosphate', 'Phosphor'],
+            'po': ['Positive', 'Powerful', 'Polite', 'Poppy', 'Popcorn', 'Pony', 'Polaris', 'Poach', 'Pocket', 'Pocketbook', 'Pod', 'Podcast', 'Podium', 'Poem', 'Poet', 'Poetic', 'Poetry', 'Poignant', 'Poinsettia', 'Point', 'Pointer', 'Poise', 'Poised', 'Poison-free', 'Poke', 'Pokemon', 'Poker', 'Polar', 'Polaroid', 'Pole', 'Polestar', 'Police'],
+            'pr': ['Proud', 'Productive', 'Precious', 'Pristine', 'Prism', 'Prophet', 'Promise', 'Promenade', 'Prominent', 'Promote', 'Prompter', 'Pronounce', 'Pronunciation', 'Proof', 'Prop', 'Propaganda-free', 'Propane', 'Propel', 'Propeller', 'Proper', 'Property', 'Prophecy', 'Prophet-like', 'Proportion', 'Proposal', 'Propose', 'Proposition', 'Proprietary', 'Proprietor', 'Propriety', 'Props', 'Prosciutto'],
+            'qu': ['Quick-witted', 'Quirky', 'Quality', 'Quaint', 'Quantum', 'Quasar', 'Quest', 'Quack', 'Quad', 'Quadrant', 'Quadruple', 'Quaff', 'Quail', 'Quake', 'Quaker', 'Qualify', 'Qualm-free', 'Quandary-free', 'Quantity', 'Quarry', 'Quart', 'Quarter', 'Quarterback', 'Quartet', 'Quartz', 'Quash', 'Quasi', 'Queen', 'Quell', 'Query', 'Quesadilla', 'Question'],
+            're': ['Remarkable', 'Resourceful', 'Resilient', 'Regal', 'Reverie', 'Remedy', 'Revelation', 'Reach', 'React', 'Read', 'Reader', 'Ready', 'Real', 'Realm', 'Reap', 'Rear', 'Reason', 'Reassure', 'Rebel', 'Rebound', 'Recall', 'Recede', 'Receipt', 'Receive', 'Recent', 'Recess', 'Recipe', 'Recital', 'Recite', 'Reckless-free', 'Reckon', 'Recognize'],
+            'ri': ['Radiant', 'Righteous', 'Riveting', 'Ribbon', 'Riddle', 'Ripple', 'Ringleader', 'Rib', 'Rice', 'Rich', 'Riches', 'Richter', 'Rick', 'Rickshaw', 'Ricochet', 'Rid', 'Ride', 'Rider', 'Ridge', 'Ridgeback', 'Riff', 'Rifle', 'Rift', 'Rig', 'Right', 'Rigid', 'Rigor', 'Riley', 'Rill', 'Rim', 'Rind', 'Ring'],
+            'ro': ['Royal', 'Robust', 'Romantic', 'Rosebud', 'Robin', 'Rocket', 'Rooster', 'Roam', 'Roar', 'Roast', 'Robe', 'Robot', 'Rock', 'Rockstar', 'Rocky', 'Rod', 'Rodent', 'Rodeo', 'Roe', 'Rogue', 'Role', 'Roll', 'Roller', 'Rolling', 'Roman', 'Romance', 'Romania', 'Romeo', 'Romp', 'Roof', 'Rook', 'Rookie', 'Room'],
+            'sa': ['Sensational', 'Sage', 'Savvy', 'Sapphire', 'Sailor', 'Sanctuary', 'Saffron', 'Sack', 'Sacrament', 'Sacred', 'Sacrifice', 'Sad-free', 'Saddle', 'Safari', 'Safe', 'Safeguard', 'Safety', 'Saga', 'Sagacious', 'Sagebrush', 'Sahara', 'Said', 'Sail', 'Sailboat', 'Saint', 'Sake', 'Salad', 'Salamander', 'Salary', 'Sale', 'Salem', 'Salient'],
+            'se': ['Serene', 'Sensible', 'Serendipity', 'Sentinel', 'Seashell', 'Serenade', 'Sea', 'Seafood', 'Seagull', 'Seal', 'Seam', 'Seaport', 'Search', 'Seashore', 'Seaside', 'Season', 'Seat', 'Seaward', 'Seaweed', 'Second', 'Secret', 'Secretary', 'Section', 'Sector', 'Secure', 'Security', 'Sedan', 'Sedate', 'Sedge', 'See', 'Seed', 'Seek'],
+            'sh': ['Shining', 'Sharp', 'Shimmer', 'Sherpa', 'Shaman', 'Shabby-free', 'Shack', 'Shade', 'Shadow', 'Shaft', 'Shag', 'Shake', 'Shaker', 'Shale', 'Shall', 'Shallot', 'Shallow', 'Sham-free', 'Shamrock', 'Shampoo', 'Shanty', 'Shape', 'Shard', 'Share', 'Shark', 'Sharpener', 'Shatter-proof', 'Shave', 'Shawl', 'She', 'Sheaf', 'Shear'],
+            'si': ['Sincere', 'Significant', 'Silky', 'Silver', 'Sizzle', 'Silhouette', 'Simmer', 'Sib', 'Sibling', 'Sic', 'Sick-free', 'Side', 'Sidekick', 'Sidereal', 'Sidewalk', 'Sideways', 'Siding', 'Sidle', 'Siege', 'Sienna', 'Siesta', 'Sieve', 'Sift', 'Sigh', 'Sight', 'Sigma', 'Sign', 'Signal', 'Signature', 'Signet', 'Silence', 'Silent'],
+            'so': ['Soulful', 'Sophisticated', 'Sociable', 'Soaring', 'Solace', 'Sonnet', 'Soprano', 'Soak', 'Soap', 'Soar', 'Sob-free', 'Sober', 'Soccer', 'Social', 'Society', 'Sock', 'Socket', 'Sod', 'Soda', 'Sofa', 'Soft', 'Softball', 'Software', 'Soil', 'Soiree', 'Sojourn', 'Sol', 'Solar', 'Sold', 'Solder', 'Soldier', 'Sole'],
+            'sp': ['Sparkling', 'Spectacular', 'Spirited', 'Spice', 'Sprite', 'Sprinkle', 'Spa', 'Space', 'Spaceship', 'Spacious', 'Spade', 'Spaghetti', 'Spain', 'Span', 'Spangle', 'Spaniel', 'Spanish', 'Spar', 'Spare', 'Spark', 'Sparkle', 'Sparkler', 'Sparrow', 'Sparse', 'Spasm-free', 'Spatial', 'Spawn', 'Speak', 'Speaker', 'Spear', 'Special', 'Specialty'],
+            'st': ['Strong', 'Stellar', 'Steadfast', 'Starlight', 'Sterling', 'Stardust', 'Steward', 'Stab-free', 'Stable', 'Stack', 'Stadium', 'Staff', 'Stage', 'Stagecoach', 'Stagger', 'Stagnant-free', 'Staid', 'Stain-free', 'Stair', 'Staircase', 'Stairway', 'Stake', 'Stalactite', 'Stalagmite', 'Stale-free', 'Stalk', 'Stall', 'Stallion', 'Stamina', 'Stamp', 'Stance', 'Stand'],
+            'su': ['Sunny', 'Supreme', 'Supportive', 'Sunflower', 'Summit', 'Sugarplum', 'Sunrise', 'Sub', 'Subatomic', 'Subject', 'Sublime', 'Submarine', 'Submit', 'Subscribe', 'Subsequent', 'Subset', 'Substance', 'Substantial', 'Substitute', 'Subtle', 'Suburb', 'Subway', 'Succeed', 'Success', 'Succinct', 'Succulent', 'Such', 'Sucker', 'Suction', 'Sudden', 'Suds', 'Sue'],
+            'sw': ['Sweet', 'Swift', 'Sweetheart', 'Swirl', 'Swan', 'Swagger', 'Sway', 'Swab', 'Swaddle', 'Swag', 'Swain', 'Swallow', 'Swamp', 'Swank', 'Swap', 'Swarm', 'Swarthy', 'Swash', 'Swashbuckler', 'Swat', 'Swatch', 'Swath', 'Swathe', 'Swatter', 'Swear', 'Sweat', 'Sweater', 'Sweden', 'Sweep', 'Sweeper', 'Swell', 'Swept'],
+            'ta': ['Talented', 'Tender', 'Tactful', 'Tangerine', 'Tapestry', 'Tango', 'Taffy', 'Tab', 'Tabby', 'Tabernacle', 'Table', 'Tableau', 'Tablecloth', 'Tablet', 'Taboo-free', 'Tabular', 'Tacit', 'Tack', 'Tackle', 'Taco', 'Tact', 'Tactic', 'Tactile', 'Tadpole', 'Tag', 'Tail', 'Tailgate', 'Tailor', 'Taint-free', 'Taiwan', 'Take', 'Takeover'],
+            'te': ['Terrific', 'Tenacious', 'Tempo', 'Teal', 'Teacup', 'Tea', 'Teach', 'Teacher', 'Teacake', 'Teak', 'Teal-blue', 'Team', 'Teammate', 'Teamwork', 'Teapot', 'Tear-free', 'Tease', 'Teaspoon', 'Tech', 'Technical', 'Technique', 'Technology', 'Teddy', 'Tee', 'Teem', 'Teen', 'Teenage', 'Teenager', 'Teeth', 'Teethe', 'Telefon', 'Telegraph'],
+            'th': ['Thoughtful', 'Thriving', 'Thunder', 'Thistle', 'Thimble', 'Thankful', 'Thank', 'Thanks', 'Thanksgiving', 'That', 'Thatch', 'Thaw', 'The', 'Theater', 'Theatre', 'Theatrical', 'Thee', 'Theft-free', 'Their', 'Theme', 'Then', 'Thence', 'Theology', 'Theorem', 'Theoretical', 'Theory', 'Therapy', 'There', 'Thereafter', 'Thereby', 'Therefore', 'Therein'],
+            'ti': ['Timeless', 'Tireless', 'Tidy', 'Tiger', 'Tinker', 'Titan', 'Tinkle', 'Tiara', 'Tibia', 'Tic', 'Tick', 'Ticker', 'Ticket', 'Tickle', 'Tidal', 'Tidbit', 'Tide', 'Tie', 'Tier', 'Tiff-free', 'Tiffany', 'Tighten', 'Tigress', 'Tile', 'Till', 'Tiller', 'Tilt', 'Timber', 'Timbre', 'Time', 'Timeline', 'Timer'],
+            'to': ['Tremendous', 'Tolerant', 'Topaz', 'Toucan', 'Tonic', 'Topnotch', 'To', 'Toad', 'Toast', 'Toaster', 'Tobacco', 'Toboggan', 'Today', 'Toddle', 'Toddler', 'Toe', 'Toenail', 'Toffee', 'Tofu', 'Toga', 'Together', 'Toggle', 'Toil', 'Toilet', 'Token', 'Tokyo', 'Told', 'Tolerable', 'Tolerance', 'Toll', 'Tomahawk', 'Tomato'],
+            'tr': ['Trustworthy', 'Triumphant', 'Truthful', 'Treasure', 'Treetop', 'Truffle', 'Trumpet', 'Trace', 'Track', 'Tracker', 'Tract', 'Tractor', 'Trade', 'Trader', 'Trading', 'Tradition', 'Traditional', 'Traffic', 'Tragedy-free', 'Trail', 'Trailer', 'Train', 'Trainer', 'Training', 'Trait', 'Trajectory', 'Tram', 'Trampoline', 'Trance', 'Tranquil', 'Transaction', 'Transcend'],
+            'tw': ['Twinkle', 'Twilight', 'Twist', 'Tweet', 'Twinkling', 'Twizzle', 'Twig', 'Twain', 'Twang', 'Tweak', 'Tweed', 'Tweezers', 'Twelfth', 'Twelve', 'Twentieth', 'Twenty', 'Twice', 'Twiddle', 'Twin', 'Twine', 'Twinge', 'Twins', 'Twirl', 'Twister', 'Twisty', 'Twitch', 'Twitter', 'Two', 'Twosome', 'Twofold', 'Tycoon', 'Type'],
+            've': ['Vibrant', 'Victorious', 'Versatile', 'Velvet', 'Venture', 'Venus', 'Vessel', 'Veal', 'Vector', 'Veer', 'Veg', 'Vegan', 'Vegetable', 'Vegetarian', 'Vegetation', 'Vehement', 'Vehicle', 'Veil', 'Vein', 'Velocity', 'Velour', 'Velveteen', 'Velvety', 'Vend', 'Vendor', 'Veneer', 'Venerable', 'Venerate', 'Venetian', 'Venezuela', 'Vengeance-free', 'Venison'],
+            'vi': ['Vivacious', 'Vigorous', 'Virtuous', 'Victory', 'Violet', 'Viking', 'Vintage', 'Via', 'Viable', 'Viaduct', 'Vial', 'Viand', 'Vibes', 'Vibrant-color', 'Vibrate', 'Vibration', 'Vicar', 'Vice-free', 'Vicinity', 'Vicious-free', 'Victim-free', 'Victor', 'Victoria', 'Victorian', 'Video', 'Vie', 'Vienna', 'View', 'Viewer', 'Viewpoint', 'Vigil', 'Vigilant'],
+            'wa': ['Wonderful', 'Walnut', 'Waterfall', 'Waffle', 'Wanderer', 'Warm', 'Wacky', 'Wad', 'Waddle', 'Wade', 'Wader', 'Wafer', 'Waft', 'Wag', 'Wage', 'Wager', 'Wagon', 'Wagtail', 'Waif', 'Wail-free', 'Wainscot', 'Waist', 'Waistcoat', 'Wait', 'Waiter', 'Waitress', 'Waive', 'Waiver', 'Wake', 'Waken', 'Walk', 'Walker'],
+            'wh': ['Wholesome', 'Whimsical', 'Whisper', 'Whimsy', 'Whirlwind', 'Whistler', 'Whack', 'Whale', 'Whaler', 'Wharf', 'What', 'Whatever', 'Wheat', 'Wheatfield', 'Wheatgrass', 'Wheel', 'Wheelbarrow', 'Wheeler', 'Wheeze-free', 'Whelk', 'Whelp', 'When', 'Whence', 'Whenever', 'Where', 'Whereas', 'Whereby', 'Wherefore', 'Wherein', 'Wherever', 'Whether', 'Whey'],
+            'yo': ['Youthful', 'Yonder', 'Yodel', 'Yo-yo', 'Yogurt', 'Youngster', 'Yoyo', 'Yodeler', 'Yoga', 'Yoghurt', 'Yogi', 'Yogic', 'Yoke', 'Yokel', 'Yolk', 'Yon', 'Yonder-star', 'Yonkers', 'Yore', 'York', 'Yorkshire', 'You', 'Young', 'Young-blood', 'Young-gun', 'Young-hearted', 'Young-soul', 'Youngish', 'Youngling', 'Your', 'Yours', 'Yourself'],
+            'ze': ['Zealous', 'Zestful', 'Zen', 'Zephyr', 'Zenith', 'Zeppelin', 'Zesty', 'Zeal', 'Zealot', 'Zebra', 'Zebu', 'Zed', 'Zee', 'Zeitgeist', 'Zelig', 'Zenana', 'Zendo', 'Zenith-point', 'Zeno', 'Zep', 'Zeppelin-rock', 'Zero', 'Zeroid', 'Zeros', 'Zest', 'Zestiness', 'Zeta', 'Zeus', 'Zeugma', 'Zev', 'Zibeline', 'Zigzag'],
+            'zi': ['Zingy', 'Zippy', 'Zigzag', 'Zinnia', 'Zircon', 'Zipper', 'Ziff', 'Zig', 'Zigzagger', 'Zilch-free', 'Zillion', 'Zillionaire', 'Zimbabwean', 'Zinc', 'Zincky', 'Zincy', 'Zine', 'Zing', 'Zinger', 'Zingier', 'Zinnia-flower', 'Zip', 'Zip-code', 'Zipline', 'Zipped', 'Zipper-up', 'Zippier', 'Zipping', 'Zirconium', 'Zit-free', 'Zither'],
             'ab': ['Abundant', 'Able', 'Ablaze', 'Absolute', 'Abstract', 'Absurd', 'Abracadabra'],
             'ac': ['Accomplished', 'Accurate', 'Ace', 'Acoustic', 'Acorn', 'Acrobat', 'Active'],
             'ad': ['Admirable', 'Adorable', 'Adventurous', 'Admiral', 'Advent', 'Adrift', 'Advance'],
@@ -496,7 +513,7 @@
             const input = document.getElementById('nameInput').value.trim();
             const error = document.getElementById('error');
             const result = document.getElementById('result');
-            const resultName = document.getElementById('resultName');
+            const resultNames = document.getElementById('resultNames');
 
             // Validate input
             if (!input || !/^[a-zA-Z\s]+$/.test(input)) {
@@ -510,23 +527,45 @@
             // Split input into words
             const words = input.split(/\s+/).filter(word => word.length > 0);
 
-            // Generate whimsical name
-            const whimsicalParts = words.map(word => {
-                const prefix = word.substring(0, 2).toLowerCase();
-                const dictionary = whimsicalDictionary[prefix];
+            // Generate 5 different whimsical name options
+            const options = [];
+            const maxAttempts = 50; // Prevent infinite loop
+            let attempts = 0;
 
-                if (dictionary && dictionary.length > 0) {
-                    // Pick a random word from the dictionary
-                    const randomIndex = Math.floor(Math.random() * dictionary.length);
-                    return dictionary[randomIndex];
-                } else {
-                    // Fallback: capitalize the original word if no match
-                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            while (options.length < 5 && attempts < maxAttempts) {
+                attempts++;
+
+                const whimsicalParts = words.map(word => {
+                    const prefix = word.substring(0, 2).toLowerCase();
+                    const dictionary = whimsicalDictionary[prefix];
+
+                    if (dictionary && dictionary.length > 0) {
+                        // Pick a random word from the dictionary
+                        const randomIndex = Math.floor(Math.random() * dictionary.length);
+                        return dictionary[randomIndex];
+                    } else {
+                        // Fallback: capitalize the original word if no match
+                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                    }
+                });
+
+                const fullName = whimsicalParts.join(' ');
+
+                // Only add if it's unique
+                if (!options.includes(fullName)) {
+                    options.push(fullName);
                 }
+            }
+
+            // Display results
+            resultNames.innerHTML = '';
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'result-option';
+                optionDiv.innerHTML = `<div class="result-name">${option}</div>`;
+                resultNames.appendChild(optionDiv);
             });
 
-            // Display result
-            resultName.textContent = whimsicalParts.join(' ');
             result.classList.add('show');
         }
 
