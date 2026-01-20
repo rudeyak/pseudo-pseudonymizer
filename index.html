@@ -137,6 +137,14 @@
             font-weight: 600;
         }
 
+        .result-info {
+            color: white;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            opacity: 0.85;
+            font-style: italic;
+        }
+
         .result-option {
             background: rgba(255, 255, 255, 0.15);
             padding: 15px 20px;
@@ -208,6 +216,7 @@
 
         <div class="result" id="result">
             <div class="result-label">Your whimsical pseudonym options:</div>
+            <div class="result-info" id="resultInfo"></div>
             <div id="resultNames"></div>
         </div>
     </div>
@@ -306,6 +315,10 @@
             've': ['Vibrant', 'Victorious', 'Versatile', 'Velvet', 'Venture', 'Venus', 'Vessel', 'Veal', 'Vector', 'Veer', 'Veg', 'Vegan', 'Vegetable', 'Vegetarian', 'Vegetation', 'Vehement', 'Vehicle', 'Veil', 'Vein', 'Velocity', 'Velour', 'Velveteen', 'Velvety', 'Vend', 'Vendor', 'Veneer', 'Venerable', 'Venerate', 'Venetian', 'Venezuela', 'Vengeance-free', 'Venison'],
             'vi': ['Vivacious', 'Vigorous', 'Virtuous', 'Victory', 'Violet', 'Viking', 'Vintage', 'Via', 'Viable', 'Viaduct', 'Vial', 'Viand', 'Vibes', 'Vibrant-color', 'Vibrate', 'Vibration', 'Vicar', 'Vice-free', 'Vicinity', 'Vicious-free', 'Victim-free', 'Victor', 'Victoria', 'Victorian', 'Video', 'Vie', 'Vienna', 'View', 'Viewer', 'Viewpoint', 'Vigil', 'Vigilant'],
             'wa': ['Wonderful', 'Walnut', 'Waterfall', 'Waffle', 'Wanderer', 'Warm', 'Wacky', 'Wad', 'Waddle', 'Wade', 'Wader', 'Wafer', 'Waft', 'Wag', 'Wage', 'Wager', 'Wagon', 'Wagtail', 'Waif', 'Wail-free', 'Wainscot', 'Waist', 'Waistcoat', 'Wait', 'Waiter', 'Waitress', 'Waive', 'Waiver', 'Wake', 'Waken', 'Walk', 'Walker'],
+            'we': {
+                adj: ['Welcoming', 'Well-meaning', 'Wealthy', 'Weathered', 'Weighty', 'Wee', 'Weekly', 'Western', 'Wedded', 'Webbed', 'Wearable', 'Westward'],
+                noun: ['Welcome', 'Wealth', 'Weather', 'Weaver', 'Web', 'Wedding', 'Wednesday', 'Weed', 'Weekend', 'Welder', 'Well', 'West', 'Westerner', 'Wetland', 'Wheat', 'Wheel', 'Whelk', 'Whey', 'Weevil', 'Weight', 'Wellspring', 'Werewolf', 'Westwind', 'Weapon', 'Weasel']
+            },
             'wh': ['Wholesome', 'Whimsical', 'Whisper', 'Whimsy', 'Whirlwind', 'Whistler', 'Whack', 'Whale', 'Whaler', 'Wharf', 'What', 'Whatever', 'Wheat', 'Wheatfield', 'Wheatgrass', 'Wheel', 'Wheelbarrow', 'Wheeler', 'Wheeze-free', 'Whelk', 'Whelp', 'When', 'Whence', 'Whenever', 'Where', 'Whereas', 'Whereby', 'Wherefore', 'Wherein', 'Wherever', 'Whether', 'Whey'],
             'yo': ['Youthful', 'Yonder', 'Yodel', 'Yo-yo', 'Yogurt', 'Youngster', 'Yoyo', 'Yodeler', 'Yoga', 'Yoghurt', 'Yogi', 'Yogic', 'Yoke', 'Yokel', 'Yolk', 'Yon', 'Yonder-star', 'Yonkers', 'Yore', 'York', 'Yorkshire', 'You', 'Young', 'Young-blood', 'Young-gun', 'Young-hearted', 'Young-soul', 'Youngish', 'Youngling', 'Your', 'Yours', 'Yourself'],
             'ze': ['Zealous', 'Zestful', 'Zen', 'Zephyr', 'Zenith', 'Zeppelin', 'Zesty', 'Zeal', 'Zealot', 'Zebra', 'Zebu', 'Zed', 'Zee', 'Zeitgeist', 'Zelig', 'Zenana', 'Zendo', 'Zenith-point', 'Zeno', 'Zep', 'Zeppelin-rock', 'Zero', 'Zeroid', 'Zeros', 'Zest', 'Zestiness', 'Zeta', 'Zeus', 'Zeugma', 'Zev', 'Zibeline', 'Zigzag'],
@@ -536,23 +549,88 @@
             'zy': ['Zydeco', 'Zygote', 'Zygomatic', 'Zyme', 'Zylon', 'Zymurgy', 'Zyrtec']
         };
 
+        // Phonetic similarity mapping for rare letter combinations
+        const phoneticFallbacks = {
+            'yb': ['ya', 'yo', 'ye'],
+            'xb': ['xa', 'xe'],
+            'qb': ['qu', 'qa'],
+            'vb': ['va', 've', 'vi'],
+            'wb': ['wa', 'wh', 'wi'],
+            'xc': ['xa', 'xo'],
+            'xd': ['xa', 'xe'],
+            'xf': ['xa', 'xe'],
+            'xg': ['xa', 'xe'],
+            'xj': ['xa', 'xe'],
+            'xk': ['xa', 'xe'],
+            'xn': ['xa', 'xe'],
+            'xq': ['xa', 'xe'],
+            'xr': ['xa', 'xe'],
+            'xw': ['xa', 'xe'],
+            'xz': ['xa', 'xe'],
+            'zb': ['za', 'ze', 'zi'],
+            'zc': ['za', 'ze'],
+            'zd': ['za', 'ze'],
+            'zf': ['za', 'ze'],
+            'zg': ['za', 'ze'],
+            'zj': ['za', 'ze'],
+            'zk': ['za', 'ze'],
+            'zn': ['za', 'ze'],
+            'zp': ['za', 'ze'],
+            'zq': ['za', 'ze'],
+            'zr': ['za', 'ze'],
+            'zs': ['za', 'ze'],
+            'zt': ['za', 'ze'],
+            'zv': ['za', 'ze'],
+            'zw': ['za', 'ze'],
+            'zx': ['za', 'ze']
+        };
+
+        // Generic whimsical fallback words for truly missing combinations
+        const genericWhimsical = {
+            adj: ['Wonderful', 'Whimsical', 'Magical', 'Marvelous', 'Brilliant', 'Radiant', 'Sparkling',
+                  'Delightful', 'Cheerful', 'Joyful', 'Enchanting', 'Dazzling', 'Luminous', 'Glorious'],
+            noun: ['Wonder', 'Magic', 'Marvel', 'Treasure', 'Sparkle', 'Dream', 'Star', 'Gem',
+                   'Phoenix', 'Dragon', 'Unicorn', 'Rainbow', 'Moonbeam', 'Stardust', 'Miracle']
+        };
+
         // Helper function to get word from dictionary based on type (adj/noun)
         function getWord(prefix, type) {
             const dict = whimsicalDictionary[prefix];
-            if (!dict) return null;
 
-            // Handle new format {adj: [...], noun: [...]}
-            if (dict.adj && dict.noun) {
-                const words = dict[type] || dict.noun;
-                return words[Math.floor(Math.random() * words.length)];
+            // Try direct lookup first
+            if (dict) {
+                // Handle new format {adj: [...], noun: [...]}
+                if (dict.adj && dict.noun) {
+                    const words = dict[type] || dict.noun;
+                    return words[Math.floor(Math.random() * words.length)];
+                }
+
+                // Handle old format (array) - treat as both adj and noun
+                if (Array.isArray(dict)) {
+                    return dict[Math.floor(Math.random() * dict.length)];
+                }
             }
 
-            // Handle old format (array) - treat as both adj and noun
-            if (Array.isArray(dict)) {
-                return dict[Math.floor(Math.random() * dict.length)];
+            // Try phonetic fallbacks for rare combinations
+            if (phoneticFallbacks[prefix]) {
+                const fallbackPrefixes = phoneticFallbacks[prefix];
+                for (const fallbackPrefix of fallbackPrefixes) {
+                    const fallbackDict = whimsicalDictionary[fallbackPrefix];
+                    if (fallbackDict) {
+                        if (fallbackDict.adj && fallbackDict.noun) {
+                            const words = fallbackDict[type] || fallbackDict.noun;
+                            return words[Math.floor(Math.random() * words.length)];
+                        }
+                        if (Array.isArray(fallbackDict)) {
+                            return fallbackDict[Math.floor(Math.random() * fallbackDict.length)];
+                        }
+                    }
+                }
             }
 
-            return null;
+            // Last resort: use generic whimsical words
+            const genericWords = genericWhimsical[type] || genericWhimsical.noun;
+            return genericWords[Math.floor(Math.random() * genericWords.length)];
         }
 
         function generateWhimsicalName() {
@@ -631,8 +709,18 @@
                 }
             }
 
-            // Display results
+            // Display results with helpful info
+            const resultInfo = document.getElementById('resultInfo');
             resultNames.innerHTML = '';
+
+            // Show info message if we couldn't generate 5 unique options
+            if (options.length < 5) {
+                resultInfo.textContent = `Generated ${options.length} unique option${options.length !== 1 ? 's' : ''} (limited by word combinations available)`;
+                resultInfo.style.display = 'block';
+            } else {
+                resultInfo.style.display = 'none';
+            }
+
             options.forEach(option => {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'result-option';
