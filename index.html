@@ -198,10 +198,10 @@
             <input
                 type="text"
                 id="nameInput"
-                placeholder="e.g., Mark Doolittle"
+                placeholder="e.g., Mark Doolittle, Mary-Jane Smith"
                 autocomplete="off"
             >
-            <div class="error" id="error">Please enter a valid name (letters only)</div>
+            <div class="error" id="error">Please enter a valid name (letters, spaces, and hyphens only)</div>
         </div>
 
         <button onclick="generateWhimsicalName()">Generate Whimsical Names</button>
@@ -213,18 +213,45 @@
     </div>
 
     <script>
-        // Comprehensive dictionary of whimsical, positive words organized by first two letters
-        // All words start with their matching prefix
+        // Comprehensive dictionary organized by part of speech for grammatical name generation
+        // Patterns: Adj+Noun, Noun+Noun (subject-object)
         const whimsicalDictionary = {
-            'ma': ['Magnificent', 'Magical', 'Majestic', 'Marvelous', 'Mango', 'Maple', 'Marvel', 'Madrigal', 'Maestro', 'Magnolia', 'Magpie', 'Mahogany', 'Majesty', 'Mandala', 'Mandarin', 'Manifest', 'Mantis', 'Marathon', 'Marble', 'Marigold', 'Marina', 'Mariner', 'Marshmallow', 'Masquerade', 'Masterpiece', 'Matador', 'Maverick', 'Maximus', 'Mayflower', 'Meadowlark', 'Majordomo', 'Marquee', 'Marquis'],
-            'do': ['Doberman', 'Dolphin', 'Doughnut', 'Dotted', 'Doodle', 'Dove', 'Doily', 'Domain', 'Dome', 'Domino', 'Donkey', 'Donut', 'Doozy', 'Dopamine', 'Dorsal', 'Dossier', 'Dotcom', 'Double', 'Doughboy', 'Dovetail', 'Downy', 'Doyen', 'Dozen', 'Dojo', 'Doctor', 'Doctrine', 'Document', 'Dodo', 'Dodger', 'Dogwood', 'Dollar', 'Dollop', 'Dolly'],
-            'jo': ['Joyful', 'Jolly', 'Jovial', 'Journey', 'Joyous', 'Joyride', 'Joker', 'Jostle', 'Jotter', 'Joust', 'Jovian', 'Jocund', 'Jogger', 'Joiner', 'Jokester', 'Jonquil', 'Jordan', 'Joshing', 'Jotted', 'Jousting', 'Joyance', 'Joybird', 'Joyful-heart', 'Joymaker', 'Joywave', 'Jowl', 'Joybell', 'Joyspring', 'Joystar', 'Jocular', 'Jollification', 'Jollity'],
-            'ja': ['Jazzy', 'Jasmine', 'Jaguar', 'Jaunty', 'Jackal', 'Jacket', 'Jackpot', 'Jade', 'Jammer', 'Jamboree', 'Jangler', 'January', 'Jarful', 'Jargon', 'Jasper', 'Javelin', 'Jaywalk', 'Jazzman', 'Jazzcat', 'Jabberwocky', 'Jacinth', 'Jalapeno', 'Jambalaya', 'Jammy', 'Jangly', 'Japonica', 'Jargonaut', 'Jaunt', 'Jazzberry', 'Jazzercise', 'Jazzfest', 'Jazzical'],
-            'sm': ['Smiling', 'Smooth', 'Smart', 'Smashing', 'Smiley', 'Smirk', 'Smarmy', 'Smartphone', 'Smarty', 'Smattering', 'Smidgen', 'Smithery', 'Smithy', 'Smitten', 'Smock', 'Smoked', 'Smokestack', 'Smolder', 'Smoocher', 'Smoothie', 'Smorgasbord', 'Smudge', 'Smuggler', 'Smurfberry', 'Smear', 'Smell', 'Smile', 'Smelt', 'Smoky', 'Smooch', 'Smuggle', 'Smurf'],
-            'wi': ['Whimsical', 'Witty', 'Wise', 'Winning', 'Wistful', 'Wizard', 'Wishful', 'Wiggle', 'Wiggly', 'Wigwam', 'Wildcard', 'Wildcat', 'Wilderness', 'Wildflower', 'Wildlife', 'Willow', 'Wily', 'Wimple', 'Wince', 'Winchester', 'Windchime', 'Windfall', 'Winding', 'Windmill', 'Window', 'Windsor', 'Windsurfer', 'Windy', 'Wingman', 'Wink', 'Winking', 'Winsome'],
-            'al': ['Alpine', 'Almond', 'Almighty', 'Aloe', 'Alpaca', 'Alpha', 'Alphabet', 'Already', 'Altar', 'Alto', 'Aluminum', 'Always', 'Alluring', 'Allegro', 'Alley', 'Alliance', 'Alligator', 'Allocate', 'Allspice', 'Allstar', 'Allure', 'Almanac', 'Aloha', 'Alone-star', 'Aloof', 'Aloud', 'Alpenglow', 'Alphorn', 'Alpinist', 'Alternate', 'Altitude', 'Altruist'],
-            'an': ['Angelic', 'Animated', 'Anchor', 'Anthem', 'Antique', 'Anvil', 'Anecdote', 'Angel', 'Angelfish', 'Anger-free', 'Angle', 'Angler', 'Anglo', 'Angora', 'Angular', 'Animal', 'Anise', 'Ankle', 'Anklet', 'Annex', 'Anniversary', 'Announce', 'Annual', 'Anode', 'Answer', 'Antares', 'Antelope', 'Antenna', 'Anterior', 'Anticipate', 'Antler', 'Anybody'],
-            'br': ['Brilliant', 'Brave', 'Breezy', 'Bright', 'Bravo', 'Brownie', 'Bristle', 'Bronze', 'Brook', 'Broom', 'Broomstick', 'Broth', 'Brother', 'Brought', 'Browser', 'Bruin', 'Brunch', 'Brunette', 'Brush', 'Bracket', 'Braid', 'Brain', 'Brainy', 'Brake', 'Bramble', 'Branch', 'Brand', 'Brandy', 'Brass', 'Bravado', 'Braveheart', 'Bravery'],
+            'ma': {
+                adj: ['Magnificent', 'Magical', 'Majestic', 'Marvelous', 'Mad', 'Masterful', 'Mature', 'Maximum', 'Merry', 'Massive', 'Mainland', 'Maroon'],
+                noun: ['Mango', 'Maple', 'Marvel', 'Madrigal', 'Maestro', 'Magnolia', 'Magpie', 'Mahogany', 'Majesty', 'Mandala', 'Mandarin', 'Mantis', 'Marathon', 'Marble', 'Marigold', 'Marina', 'Mariner', 'Marshmallow', 'Masquerade', 'Masterpiece', 'Matador', 'Maverick', 'Maximus', 'Mayflower', 'Meadowlark', 'Majordomo', 'Marquee', 'Marquis', 'Manifest']
+            },
+            'do': {
+                adj: ['Dotted', 'Downy', 'Dorsal', 'Double', 'Doting', 'Doughty', 'Domed', 'Dominant', 'Domestic', 'Documented'],
+                noun: ['Doberman', 'Dolphin', 'Doughnut', 'Doodle', 'Dove', 'Doily', 'Domain', 'Dome', 'Domino', 'Donkey', 'Donut', 'Doozy', 'Dopamine', 'Dossier', 'Dotcom', 'Doughboy', 'Dovetail', 'Doyen', 'Dozen', 'Dojo', 'Doctor', 'Doctrine', 'Document', 'Dodo', 'Dodger', 'Dogwood', 'Dollar', 'Dollop', 'Dolly']
+            },
+            'jo': {
+                adj: ['Joyful', 'Jolly', 'Jovial', 'Joyous', 'Jocund', 'Jocular', 'Joshing'],
+                noun: ['Journey', 'Joyride', 'Joker', 'Jostle', 'Jotter', 'Joust', 'Jogger', 'Joiner', 'Jokester', 'Jonquil', 'Jordan', 'Joyance', 'Joybird', 'Joymaker', 'Joywave', 'Jowl', 'Joybell', 'Joyspring', 'Joystar', 'Jollification', 'Jollity']
+            },
+            'ja': {
+                adj: ['Jazzy', 'Jaunty', 'Jammy', 'Jangly', 'Jazzical'],
+                noun: ['Jasmine', 'Jaguar', 'Jackal', 'Jacket', 'Jackpot', 'Jade', 'Jammer', 'Jamboree', 'Jangler', 'January', 'Jarful', 'Jargon', 'Jasper', 'Javelin', 'Jazzman', 'Jazzcat', 'Jabberwocky', 'Jacinth', 'Jalapeno', 'Jambalaya', 'Japonica', 'Jargonaut', 'Jaunt', 'Jazzberry', 'Jazzercise', 'Jazzfest']
+            },
+            'sm': {
+                adj: ['Smiling', 'Smooth', 'Smart', 'Smashing', 'Smarmy', 'Smitten', 'Smoked', 'Smoky'],
+                noun: ['Smiley', 'Smirk', 'Smartphone', 'Smarty', 'Smattering', 'Smidgen', 'Smithery', 'Smithy', 'Smock', 'Smokestack', 'Smolder', 'Smoocher', 'Smoothie', 'Smorgasbord', 'Smudge', 'Smuggler', 'Smurfberry', 'Smear', 'Smell', 'Smile', 'Smelt', 'Smooch', 'Smurf']
+            },
+            'wi': {
+                adj: ['Whimsical', 'Witty', 'Wise', 'Winning', 'Wistful', 'Wishful', 'Wiggly', 'Winding', 'Windy', 'Winking', 'Winsome', 'Wily', 'Wild'],
+                noun: ['Wizard', 'Wiggle', 'Wigwam', 'Wildcard', 'Wildcat', 'Wilderness', 'Wildflower', 'Wildlife', 'Willow', 'Wimple', 'Wince', 'Winchester', 'Windchime', 'Windfall', 'Windmill', 'Window', 'Windsor', 'Windsurfer', 'Wingman', 'Wink']
+            },
+            'al': {
+                adj: ['Almighty', 'Alluring', 'Alpine', 'Aloof', 'Alternate', 'Alert', 'Alive', 'Allied'],
+                noun: ['Almond', 'Aloe', 'Alpaca', 'Alpha', 'Alphabet', 'Altar', 'Alto', 'Aluminum', 'Allegro', 'Alley', 'Alliance', 'Alligator', 'Allspice', 'Allstar', 'Allure', 'Almanac', 'Aloha', 'Alpenglow', 'Alphorn', 'Alpinist', 'Altitude', 'Altruist']
+            },
+            'an': {
+                adj: ['Angelic', 'Animated', 'Antique', 'Angular', 'Annual', 'Anterior', 'Ancient', 'Ample'],
+                noun: ['Anchor', 'Anthem', 'Anvil', 'Anecdote', 'Angel', 'Angelfish', 'Angle', 'Angler', 'Anglo', 'Angora', 'Animal', 'Anise', 'Ankle', 'Anklet', 'Annex', 'Anniversary', 'Anode', 'Answer', 'Antares', 'Antelope', 'Antenna', 'Antler', 'Anybody']
+            },
+            'br': {
+                adj: ['Brilliant', 'Brave', 'Breezy', 'Bright', 'Brainy', 'Brief', 'Broad', 'Brisk'],
+                noun: ['Bravo', 'Brownie', 'Bristle', 'Bronze', 'Brook', 'Broom', 'Broomstick', 'Broth', 'Brother', 'Browser', 'Bruin', 'Brunch', 'Brunette', 'Brush', 'Bracket', 'Braid', 'Brain', 'Brake', 'Bramble', 'Branch', 'Brand', 'Brandy', 'Brass', 'Bravado', 'Braveheart', 'Bravery']
+            },
             'ca': ['Carefree', 'Capable', 'Candy', 'Carnival', 'Castle', 'Candle', 'Cadence', 'Cadet', 'Cafe', 'Cage-free', 'Cairn', 'Cake', 'Cakewalk', 'Calabash', 'Calico', 'California', 'Caliper', 'Calla', 'Calm', 'Calypso', 'Camaraderie', 'Camber', 'Camel', 'Cameo', 'Camera', 'Camomile', 'Campaign', 'Campanile', 'Camper', 'Campus', 'Canal', 'Canary'],
             'ch': ['Cheerful', 'Champion', 'Cherry', 'Chocolate', 'Chime', 'Chipper', 'Charm', 'Charming', 'Chart', 'Charter', 'Chase', 'Chaser', 'Chasm', 'Chateau', 'Chatty', 'Cheetah', 'Chef', 'Cherish', 'Cherub', 'Chess', 'Chestnut', 'Chevron', 'Chick', 'Chicken', 'Chief', 'Chieftain', 'Chiffon', 'Child', 'Chill', 'Chimney', 'Chimpanzee', 'China'],
             'da': ['Daring', 'Dandy', 'Dancer', 'Daisy', 'Dapper', 'Daylight', 'Dabble', 'Dachshund', 'Daffodil', 'Dagger', 'Dahlia', 'Daily', 'Dainty', 'Dairy', 'Dais', 'Dakota', 'Dale', 'Dalmatian', 'Dam', 'Damask', 'Dame', 'Damsel', 'Dance', 'Dandelion', 'Dangler', 'Danish', 'Dapple', 'Dare', 'Daredevil', 'Darling', 'Dart', 'Dash'],
@@ -509,14 +536,33 @@
             'zy': ['Zydeco', 'Zygote', 'Zygomatic', 'Zyme', 'Zylon', 'Zymurgy', 'Zyrtec']
         };
 
+        // Helper function to get word from dictionary based on type (adj/noun)
+        function getWord(prefix, type) {
+            const dict = whimsicalDictionary[prefix];
+            if (!dict) return null;
+
+            // Handle new format {adj: [...], noun: [...]}
+            if (dict.adj && dict.noun) {
+                const words = dict[type] || dict.noun;
+                return words[Math.floor(Math.random() * words.length)];
+            }
+
+            // Handle old format (array) - treat as both adj and noun
+            if (Array.isArray(dict)) {
+                return dict[Math.floor(Math.random() * dict.length)];
+            }
+
+            return null;
+        }
+
         function generateWhimsicalName() {
             const input = document.getElementById('nameInput').value.trim();
             const error = document.getElementById('error');
             const result = document.getElementById('result');
             const resultNames = document.getElementById('resultNames');
 
-            // Validate input
-            if (!input || !/^[a-zA-Z\s]+$/.test(input)) {
+            // Validate input (allow hyphens now)
+            if (!input || !/^[a-zA-Z\s-]+$/.test(input)) {
                 error.classList.add('show');
                 result.classList.remove('show');
                 return;
@@ -524,29 +570,57 @@
 
             error.classList.remove('show');
 
-            // Split input into words
+            // Split input into words, preserving structure
             const words = input.split(/\s+/).filter(word => word.length > 0);
+
+            // Define grammatical patterns for 2-word names
+            const twoWordPatterns = [
+                ['adj', 'noun'],   // Magnificent Dragon
+                ['noun', 'noun']    // Marshmallow Dodger (subject-object)
+            ];
 
             // Generate 5 different whimsical name options
             const options = [];
-            const maxAttempts = 50; // Prevent infinite loop
+            const maxAttempts = 100;
             let attempts = 0;
 
             while (options.length < 5 && attempts < maxAttempts) {
                 attempts++;
 
-                const whimsicalParts = words.map(word => {
-                    const prefix = word.substring(0, 2).toLowerCase();
-                    const dictionary = whimsicalDictionary[prefix];
+                // For 2-word names, randomly pick a pattern
+                const pattern = words.length === 2
+                    ? twoWordPatterns[Math.floor(Math.random() * twoWordPatterns.length)]
+                    : null;
 
-                    if (dictionary && dictionary.length > 0) {
-                        // Pick a random word from the dictionary
-                        const randomIndex = Math.floor(Math.random() * dictionary.length);
-                        return dictionary[randomIndex];
-                    } else {
-                        // Fallback: capitalize the original word if no match
-                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                const whimsicalParts = words.map((word, index) => {
+                    // Handle hyphenated words like "Mary-Jane"
+                    if (word.includes('-')) {
+                        const parts = word.split('-');
+                        const transformedParts = parts.map((part, partIndex) => {
+                            const prefix = part.substring(0, 2).toLowerCase();
+                            // For hyphenated parts, use adj for first part, noun for second
+                            const type = partIndex === 0 ? 'adj' : 'noun';
+                            const newWord = getWord(prefix, type);
+                            return newWord || part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+                        });
+                        return transformedParts.join('-');
                     }
+
+                    // Regular word handling
+                    const prefix = word.substring(0, 2).toLowerCase();
+
+                    // Determine type based on position and pattern
+                    let type;
+                    if (pattern) {
+                        // Use the pattern for 2-word names
+                        type = pattern[index];
+                    } else {
+                        // For 3+ words: all but last are adjectives, last is noun
+                        type = index === words.length - 1 ? 'noun' : 'adj';
+                    }
+
+                    const newWord = getWord(prefix, type);
+                    return newWord || word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                 });
 
                 const fullName = whimsicalParts.join(' ');
