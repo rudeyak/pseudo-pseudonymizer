@@ -628,6 +628,27 @@
                 }
             }
 
+            // Try all prefixes starting with the same first letter (e.g., k* for 'kz')
+            const firstLetter = prefix.charAt(0);
+            const matchingWords = [];
+
+            for (const key in whimsicalDictionary) {
+                if (key.charAt(0) === firstLetter) {
+                    const candidateDict = whimsicalDictionary[key];
+
+                    if (candidateDict.adj && candidateDict.noun) {
+                        const words = candidateDict[type] || candidateDict.noun;
+                        matchingWords.push(...words);
+                    } else if (Array.isArray(candidateDict)) {
+                        matchingWords.push(...candidateDict);
+                    }
+                }
+            }
+
+            if (matchingWords.length > 0) {
+                return matchingWords[Math.floor(Math.random() * matchingWords.length)];
+            }
+
             // Last resort: use generic whimsical words
             const genericWords = genericWhimsical[type] || genericWhimsical.noun;
             return genericWords[Math.floor(Math.random() * genericWords.length)];
