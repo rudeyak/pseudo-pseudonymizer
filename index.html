@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whimsical Name Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-label {
+            color: white;
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .result-name {
+            color: white;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .sparkle {
+            display: inline-block;
+            animation: sparkle 1.5s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        .error {
+            color: #f5576c;
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="sparkle">✨</span> Whimsical Name Generator <span class="sparkle">✨</span></h1>
+        <p class="subtitle">Transform any name into something magical!</p>
+
+        <div class="input-group">
+            <label for="nameInput">Enter a name:</label>
+            <input
+                type="text"
+                id="nameInput"
+                placeholder="e.g., Mark Doolittle"
+                autocomplete="off"
+            >
+            <div class="error" id="error">Please enter a valid name (letters only)</div>
+        </div>
+
+        <button onclick="generateWhimsicalName()">Generate Whimsical Name</button>
+
+        <div class="result" id="result">
+            <div class="result-label">Your whimsical pseudonym is:</div>
+            <div class="result-name" id="resultName"></div>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive dictionary of whimsical, positive words organized by first two letters
+        const whimsicalDictionary = {
+            'ma': ['Magnificent', 'Magical', 'Majestic', 'Marvelous', 'Mango', 'Maple', 'Marvel'],
+            'do': ['Dazzling', 'Delightful', 'Doberman', 'Dolphin', 'Doughnut', 'Dotted', 'Doodle'],
+            'jo': ['Joyful', 'Jolly', 'Jovial', 'Journey', 'Jubilee', 'Joyous', 'Joyride'],
+            'ja': ['Jazzy', 'Jubilant', 'Jamboree', 'Jasmine', 'Jaguar', 'Jaunty', 'Jangle'],
+            'sm': ['Smiling', 'Smooth', 'Smart', 'Smashing', 'Smartie', 'Smirk', 'Smiley'],
+            'wi': ['Whimsical', 'Witty', 'Wise', 'Winning', 'Wistful', 'Wizard', 'Wishful'],
+            'al': ['Amazingly', 'Alluring', 'Alpine', 'Almond', 'Alegria', 'Alight', 'Almighty'],
+            'an': ['Angelic', 'Animated', 'Anchor', 'Anthem', 'Antique', 'Anvil', 'Anecdote'],
+            'br': ['Brilliant', 'Brave', 'Breezy', 'Bright', 'Bravo', 'Brownie', 'Bristle'],
+            'ca': ['Charming', 'Carefree', 'Capable', 'Candy', 'Carnival', 'Castle', 'Candle'],
+            'ch': ['Cheerful', 'Champion', 'Charisma', 'Cherry', 'Chocolate', 'Chime', 'Chipper'],
+            'da': ['Daring', 'Dazzling', 'Dandy', 'Dancer', 'Daisy', 'Dapper', 'Daylight'],
+            'de': ['Delightful', 'Determined', 'Deft', 'Delight', 'Delicious', 'Devoted', 'Dreamy'],
+            'el': ['Elegant', 'Elated', 'Electric', 'Eloquent', 'Elfin', 'Elixir', 'Elevate'],
+            'em': ['Empowered', 'Enchanting', 'Emerald', 'Emblem', 'Embrace', 'Eminent', 'Emperor'],
+            'fr': ['Friendly', 'Fantastic', 'Frolicsome', 'Fresh', 'Frosty', 'Freckle', 'Freebird'],
+            'ge': ['Gentle', 'Generous', 'Genius', 'Genuine', 'Gemstone', 'Genie', 'Gentle'],
+            'gl': ['Glowing', 'Gleeful', 'Glorious', 'Glamorous', 'Glimmer', 'Glitter', 'Glide'],
+            'gr': ['Graceful', 'Grand', 'Grateful', 'Great', 'Groove', 'Gryphon', 'Grinning'],
+            'ha': ['Happy', 'Harmonious', 'Hardy', 'Harvest', 'Haven', 'Halo', 'Harmony'],
+            'he': ['Helpful', 'Hearty', 'Heroic', 'Heavenly', 'Herald', 'Heather', 'Heartfelt'],
+            'ho': ['Hopeful', 'Honest', 'Honorable', 'Honey', 'Horizon', 'Homeward', 'Hoot'],
+            'ki': ['Kindhearted', 'Keen', 'Kickstart', 'Kite', 'Kingdom', 'Kindle', 'Kindred'],
+            'la': ['Lively', 'Legendary', 'Luminous', 'Lavender', 'Laughter', 'Larkspur', 'Landmark'],
+            'le': ['Legendary', 'Learned', 'Lemon', 'Leopard', 'Legend', 'Levelheaded', 'Lettuce'],
+            'li': ['Lighthearted', 'Limitless', 'Lively', 'Liberty', 'Licorice', 'Lighthouse', 'Lightning'],
+            'lo': ['Lovely', 'Loyal', 'Logical', 'Lollipop', 'Lotus', 'Lovebug', 'Loopy'],
+            'lu': ['Lucky', 'Luminous', 'Luscious', 'Lullaby', 'Lunar', 'Luxurious', 'Ludicrous'],
+            'mi': ['Mighty', 'Miraculous', 'Mirthful', 'Mischievous', 'Minstrel', 'Minty', 'Miracle'],
+            'mo': ['Motivated', 'Magical', 'Moonbeam', 'Moxie', 'Mocha', 'Monarch', 'Moonlight'],
+            'na': ['Noble', 'Nurturing', 'Natural', 'Nifty', 'Nautical', 'Navigate', 'Narrative'],
+            'ni': ['Nice', 'Nimble', 'Nifty', 'Night-owl', 'Ninja', 'Nirvana', 'Nickel'],
+            'no': ['Notable', 'Noteworthy', 'Novel', 'Noodle', 'Nordic', 'Northstar', 'Nostalgic'],
+            'ol': ['Optimistic', 'Outstanding', 'Olive', 'Olympian', 'Omen', 'Omnibus', 'Opal'],
+            'or': ['Original', 'Ornate', 'Organized', 'Orchid', 'Oracle', 'Orange', 'Orbit'],
+            'pa': ['Peaceful', 'Passionate', 'Playful', 'Paradise', 'Pancake', 'Panda', 'Parade'],
+            'pe': ['Perceptive', 'Perfect', 'Persistent', 'Peacock', 'Pebble', 'Peppermint', 'Perpetual'],
+            'ph': ['Phenomenal', 'Philosophical', 'Phoenix', 'Photon', 'Phrase', 'Pheasant', 'Phantom'],
+            'po': ['Positive', 'Powerful', 'Polite', 'Poppy', 'Popcorn', 'Pony', 'Polaris'],
+            'pr': ['Proud', 'Productive', 'Precious', 'Pristine', 'Prism', 'Prophet', 'Promise'],
+            'qu': ['Quick-witted', 'Quirky', 'Quality', 'Quaint', 'Quantum', 'Quasar', 'Quest'],
+            're': ['Remarkable', 'Resourceful', 'Resilient', 'Regal', 'Reverie', 'Remedy', 'Revelation'],
+            'ri': ['Radiant', 'Righteous', 'Riveting', 'Ribbon', 'Riddle', 'Ripple', 'Ringleader'],
+            'ro': ['Royal', 'Robust', 'Romantic', 'Rosebud', 'Robin', 'Rocket', 'Rooster'],
+            'sa': ['Sensational', 'Sage', 'Savvy', 'Sapphire', 'Sailor', 'Sanctuary', 'Saffron'],
+            'se': ['Serene', 'Sincere', 'Sensible', 'Serendipity', 'Sentinel', 'Seashell', 'Serenade'],
+            'sh': ['Shining', 'Sharp', 'Splendid', 'Shimmer', 'Sherpa', 'Sherbert', 'Shaman'],
+            'si': ['Sincere', 'Significant', 'Silky', 'Silver', 'Sizzle', 'Silhouette', 'Simmer'],
+            'so': ['Soulful', 'Sophisticated', 'Sociable', 'Soaring', 'Solace', 'Sonnet', 'Soprano'],
+            'sp': ['Sparkling', 'Spectacular', 'Spirited', 'Spice', 'Sprite', 'Sprinkle', 'Sphinx'],
+            'st': ['Strong', 'Stellar', 'Steadfast', 'Starlight', 'Sterling', 'Stardust', 'Steward'],
+            'su': ['Sunny', 'Supreme', 'Supportive', 'Sunflower', 'Summit', 'Sugarplum', 'Sunrise'],
+            'sw': ['Sweet', 'Swift', 'Sweetheart', 'Swirl', 'Swan', 'Swagger', 'Sway'],
+            'ta': ['Talented', 'Tender', 'Tactful', 'Tangerine', 'Tapestry', 'Tango', 'Taffy'],
+            'te': ['Terrific', 'Tenacious', 'Thoughtful', 'Tempo', 'Tempest', 'Teal', 'Teacup'],
+            'th': ['Thorough', 'Thoughtful', 'Thriving', 'Thunder', 'Thistle', 'Thimble', 'Thankful'],
+            'ti': ['Timeless', 'Tireless', 'Tidy', 'Tiger', 'Tinker', 'Titan', 'Tinkle'],
+            'to': ['Tremendous', 'Tolerant', 'Topaz', 'Toucan', 'Tonic', 'Tornado', 'Topnotch'],
+            'tr': ['Trustworthy', 'Triumphant', 'Truthful', 'Treasure', 'Treetop', 'Truffle', 'Trumpet'],
+            'tw': ['Twinkle', 'Twilight', 'Twist', 'Tweet', 'Twinkling', 'Twizzle', 'Twig'],
+            've': ['Vibrant', 'Victorious', 'Versatile', 'Velvet', 'Venture', 'Venus', 'Vessel'],
+            'vi': ['Vivacious', 'Vigorous', 'Virtuous', 'Victory', 'Violet', 'Viking', 'Vintage'],
+            'wa': ['Warm', 'Wise', 'Wonderful', 'Walnut', 'Waterfall', 'Waffle', 'Wanderer'],
+            'wh': ['Wholesome', 'Whimsical', 'Whisper', 'Whimsy', 'Whirlwind', 'Whistler', 'Wheatfield'],
+            'yo': ['Youthful', 'Young-hearted', 'Yonder', 'Yodel', 'Yo-yo', 'Yogurt', 'Youngster'],
+            'ze': ['Zealous', 'Zestful', 'Zen', 'Zephyr', 'Zenith', 'Zeppelin', 'Zesty'],
+            'zi': ['Zingy', 'Zippy', 'Zigzag', 'Zinnia', 'Zircon', 'Zilch', 'Zipper'],
+            'ab': ['Abundant', 'Able', 'Ablaze', 'Absolute', 'Abstract', 'Absurd', 'Abracadabra'],
+            'ac': ['Accomplished', 'Accurate', 'Ace', 'Acoustic', 'Acorn', 'Acrobat', 'Active'],
+            'ad': ['Admirable', 'Adorable', 'Adventurous', 'Admiral', 'Advent', 'Adrift', 'Advance'],
+            'ae': ['Aerial', 'Aesthetic', 'Aerie', 'Aether', 'Aeronaut', 'Aegis', 'Aeon'],
+            'af': ['Affable', 'Affectionate', 'Affirming', 'Afloat', 'Afoot', 'Afresh', 'Afternoon'],
+            'ag': ['Agile', 'Agreeable', 'Aglow', 'Agate', 'Agent', 'Agenda', 'Aged'],
+            'ah': ['Ahead', 'Ahoy', 'Ahem', 'Ahora', 'Ahem', 'Ahimsa', 'Ahh'],
+            'ai': ['Airy', 'Aiming', 'Airlift', 'Airplane', 'Airport', 'Aisle', 'Aimless'],
+            'aj': ['Ajax', 'Ajar', 'Ajay', 'Ajit', 'Ajooba', 'Ajmer', 'Ajanta'],
+            'ak': ['Akin', 'Akimbo', 'Akira', 'Akbar', 'Akimbo', 'Akash', 'Akan'],
+            'am': ['Amazing', 'Ambitious', 'Amiable', 'Amber', 'Amigo', 'Amethyst', 'Ambassador'],
+            'ap': ['Appealing', 'Appreciative', 'Apt', 'Apple', 'Apricot', 'Apostle', 'Applause'],
+            'ar': ['Artistic', 'Articulate', 'Ardent', 'Arrow', 'Archer', 'Arcade', 'Argyle'],
+            'as': ['Aspiring', 'Assured', 'Astounding', 'Asteroid', 'Aspen', 'Astral', 'Assemble'],
+            'at': ['Attentive', 'Attractive', 'Athletic', 'Atlantic', 'Atlas', 'Atmosphere', 'Attic'],
+            'au': ['Authentic', 'Auspicious', 'Audacious', 'Aurora', 'Autumn', 'Audio', 'August'],
+            'av': ['Avid', 'Available', 'Avant-garde', 'Avatar', 'Avenue', 'Avocado', 'Aviation'],
+            'aw': ['Awesome', 'Awestruck', 'Aware', 'Awake', 'Award', 'Away', 'Awhile'],
+            'ax': ['Axiomatic', 'Axle', 'Axis', 'Axiom', 'Axel', 'Axon', 'Axminster'],
+            'ay': ['Aye', 'Ayatollah', 'Ayesha', 'Ayrshire', 'Ayurvedic', 'Ayah', 'Ayam'],
+            'az': ['Azure', 'Azalea', 'Aztec', 'Azimuth', 'Azkaban', 'Azeotrope', 'Azrael'],
+            'ba': ['Balanced', 'Bold', 'Brave', 'Ballad', 'Bamboo', 'Banjo', 'Banner'],
+            'be': ['Beautiful', 'Beloved', 'Benevolent', 'Beacon', 'Beaming', 'Bejeweled', 'Believer'],
+            'bi': ['Brilliant', 'Blissful', 'Bighearted', 'Biscuit', 'Birdie', 'Bingo', 'Bijou'],
+            'bl': ['Blessed', 'Blissful', 'Blooming', 'Blossom', 'Bluebird', 'Blaze', 'Blueprint'],
+            'bo': ['Bold', 'Bouncy', 'Boundless', 'Bonbon', 'Bonfire', 'Bookworm', 'Boomerang'],
+            'bu': ['Bubbly', 'Bountiful', 'Bursting', 'Butterfly', 'Buttercup', 'Bumble', 'Bundle'],
+            'by': ['Bygone', 'Byline', 'Bypass', 'Byway', 'Bystander', 'Byte', 'Byzantine'],
+            'ce': ['Celebrated', 'Centered', 'Certain', 'Celestial', 'Ceremony', 'Cedar', 'Celery'],
+            'ci': ['Civic', 'Civil', 'Cipher', 'Circle', 'Circus', 'Citrus', 'Citizen'],
+            'cl': ['Clever', 'Clear', 'Classy', 'Clover', 'Cloud', 'Clarity', 'Classic'],
+            'co': ['Confident', 'Compassionate', 'Courageous', 'Comet', 'Compass', 'Cookie', 'Cosmos'],
+            'cr': ['Creative', 'Crisp', 'Credible', 'Crown', 'Crystal', 'Crayon', 'Crescent'],
+            'cu': ['Curious', 'Cultured', 'Cuddly', 'Cupid', 'Cupcake', 'Curious', 'Curator'],
+            'cy': ['Cyclone', 'Cypher', 'Cypress', 'Cymbal', 'Cyan', 'Cycle', 'Cyborg'],
+            'di': ['Diligent', 'Dynamic', 'Dignified', 'Diamond', 'Dimple', 'Dinosaur', 'Dingo'],
+            'dr': ['Dreamy', 'Driven', 'Durable', 'Dragon', 'Dragonfly', 'Dreamer', 'Drummer'],
+            'du': ['Dutiful', 'Durable', 'Ducky', 'Duet', 'Duke', 'Dungeon', 'Dusk'],
+            'dw': ['Dweller', 'Dwell', 'Dwarf', 'Dwelling', 'Dwindle', 'Dweeb', 'Dwarven'],
+            'dy': ['Dynamic', 'Dynamite', 'Dynasty', 'Dynamo', 'Dyad', 'Dyed', 'Dyson'],
+            'ea': ['Eager', 'Earnest', 'Easygoing', 'Eagle', 'Earring', 'Easel', 'Easter'],
+            'eb': ['Ebony', 'Ebullient', 'Ebb', 'Ebon', 'Ebenezer', 'Ebert', 'Ebook'],
+            'ec': ['Eclectic', 'Eco-friendly', 'Ecstatic', 'Echo', 'Eclipse', 'Ecology', 'Economy'],
+            'ed': ['Educated', 'Edgy', 'Edifying', 'Edge', 'Editor', 'Edible', 'Edison'],
+            'ef': ['Effective', 'Efficient', 'Effortless', 'Effervescent', 'Effect', 'Effort', 'Effusive'],
+            'eg': ['Eggnog', 'Ego', 'Egret', 'Egypt', 'Eggplant', 'Egress', 'Egad'],
+            'eh': ['Eh', 'Eharmony', 'Ehud', 'Ehrlich', 'Ehsan', 'Ehrenberg', 'Ehime'],
+            'ei': ['Eight', 'Einstein', 'Either', 'Eighth', 'Eider', 'Eiffel', 'Eighty'],
+            'ej': ['Eject', 'Ejaculate', 'Ejection', 'Ejecta', 'Ejector', 'Ejido', 'Ejectment'],
+            'ek': ['Eke', 'Ekko', 'Eking', 'Ekaterina', 'Ekaterin', 'Ekberg', 'Ekman'],
+            'en': ['Energetic', 'Enlightened', 'Enthusiastic', 'Enchanted', 'Enigma', 'Enjoy', 'Encore'],
+            'eo': ['Eon', 'Eocene', 'Eolian', 'Eosin', 'Eostre', 'Eohippus', 'Eolithic'],
+            'ep': ['Epic', 'Epitome', 'Epoch', 'Epiphany', 'Episode', 'Epsilon', 'Epoxy'],
+            'eq': ['Equable', 'Equal', 'Equanimity', 'Equator', 'Equine', 'Equity', 'Equinox'],
+            'er': ['Earnest', 'Erudite', 'Errant', 'Ermine', 'Eros', 'Ergo', 'Error'],
+            'es': ['Essential', 'Esteemed', 'Estimable', 'Essence', 'Espresso', 'Estate', 'Eskimo'],
+            'et': ['Eternal', 'Ethical', 'Ethereal', 'Eternity', 'Ethos', 'Etching', 'Ethnic'],
+            'eu': ['Euphoric', 'Eudaimonia', 'Eureka', 'Europe', 'Eucalyptus', 'Euclid', 'Eugenie'],
+            'ev': ['Everlasting', 'Evident', 'Evolving', 'Evergreen', 'Evening', 'Event', 'Evolve'],
+            'ew': ['Ewe', 'Ewing', 'Ewok', 'Ewer', 'Ewart', 'Ewbank', 'Ewald'],
+            'ex': ['Excellent', 'Exceptional', 'Exciting', 'Exemplary', 'Exuberant', 'Explorer', 'Express'],
+            'ey': ['Eyeful', 'Eyebrow', 'Eyelash', 'Eyelet', 'Eyelid', 'Eyepiece', 'Eyesight'],
+            'ez': ['Ezra', 'Eze', 'Ezekiel', 'Ezell', 'Ezio', 'Ezer', 'Ezequiel'],
+            'fa': ['Fabulous', 'Faithful', 'Fair', 'Falcon', 'Fairy', 'Fantasy', 'Fanfare'],
+            'fe': ['Fearless', 'Festive', 'Fervent', 'Feather', 'Fennel', 'Fern', 'Festival'],
+            'fi': ['Fine', 'Fierce', 'Fiery', 'Firefly', 'Fiddle', 'Finch', 'Fireworks'],
+            'fl': ['Flourishing', 'Flowery', 'Fluffy', 'Flamingo', 'Flicker', 'Floret', 'Flute'],
+            'fo': ['Fortunate', 'Focused', 'Forgiving', 'Forest', 'Fortune', 'Fountain', 'Foxtrot'],
+            'fu': ['Fun-loving', 'Fulfilled', 'Funny', 'Fudge', 'Funfetti', 'Fusion', 'Future'],
+            'fy': ['Fyrd', 'Fyke', 'Fytte', 'Fynn', 'Fyodor', 'Fyffes', 'Fylde'],
+            'ga': ['Gallant', 'Generous', 'Gainful', 'Galaxy', 'Garden', 'Garnet', 'Gala'],
+            'gi': ['Gifted', 'Giggling', 'Giddy', 'Giraffe', 'Ginger', 'Giggle', 'Gizmo'],
+            'go': ['Goodhearted', 'Gorgeous', 'Gracious', 'Golden', 'Goose', 'Goblin', 'Gondola'],
+            'gu': ['Gutsy', 'Guileless', 'Gusto', 'Guardian', 'Guitar', 'Gumdrop', 'Guide'],
+            'gy': ['Gypsy', 'Gyroscope', 'Gym', 'Gymnast', 'Gyre', 'Gyro', 'Gypsum'],
+            'hi': ['Hilarious', 'Honorable', 'High-spirited', 'Hiker', 'Hippo', 'Hickory', 'Highway'],
+            'hu': ['Humble', 'Humorous', 'Humane', 'Hummingbird', 'Husky', 'Hurricane', 'Hunter'],
+            'hy': ['Hyper', 'Hyperactive', 'Hypnotic', 'Hyacinth', 'Hybrid', 'Hydrangea', 'Hyena'],
+            'id': ['Idealistic', 'Idyllic', 'Idea', 'Ideal', 'Identity', 'Idiom', 'Idol'],
+            'ig': ['Ignite', 'Igloo', 'Iguana', 'Ignition', 'Ignorant', 'Ignore', 'Igor'],
+            'il': ['Illuminating', 'Illustrious', 'Illuminate', 'Illusion', 'Illustration', 'Iliad', 'Ilk'],
+            'im': ['Imaginative', 'Immaculate', 'Impressive', 'Imperial', 'Impulse', 'Imagine', 'Image'],
+            'in': ['Innovative', 'Inspiring', 'Intelligent', 'Incredible', 'Indigo', 'Infinity', 'Ink'],
+            'io': ['Ionic', 'Iota', 'Iodine', 'Ionosphere', 'Iowa', 'Ion', 'Ionia'],
+            'ip': ['Ipad', 'Iphone', 'Ipod', 'Ipsilon', 'Ipanema', 'Ipatiev', 'Ipecac'],
+            'iq': ['Iqbal', 'Iqaluit', 'Iquitos', 'Iqra', 'Iraqi', 'Iran', 'Iroquois'],
+            'ir': ['Irresistible', 'Irrepressible', 'Iris', 'Iron', 'Irony', 'Iridescent', 'Irregular'],
+            'is': ['Inspired', 'Islet', 'Island', 'Isolated', 'Isotope', 'Issue', 'Istanbul'],
+            'it': ['Itinerant', 'Italic', 'Italy', 'Item', 'Iterate', 'Itchy', 'Itself'],
+            'iv': ['Ivory', 'Ivy', 'Ivan', 'Ivanhoe', 'Ives', 'Ivor', 'Iverson'],
+            'iw': ['Iwan', 'Iwata', 'Iwo', 'Iwaki', 'Iwasaki', 'Iwerks', 'Iwate'],
+            'ix': ['Ixia', 'Ixion', 'Ixora', 'Ixodes', 'Ixtapa', 'Ixtle', 'Ixelles'],
+            'iy': ['Iyengar', 'Iyar', 'Iyer', 'Iyyar', 'Iyas', 'Iyasu', 'Iyanla'],
+            'iz': ['Izzy', 'Izmir', 'Izod', 'Izumi', 'Izaiah', 'Izaak', 'Izar'],
+            'je': ['Jestful', 'Jewel', 'Jelly', 'Jester', 'Jenga', 'Jersey', 'Jet'],
+            'ji': ['Jittery', 'Jigsaw', 'Jingle', 'Jig', 'Jimmy', 'Jinx', 'Jitterbug'],
+            'ju': ['Jubilant', 'Judicious', 'Just', 'Jumper', 'Juggler', 'Juice', 'Jupiter'],
+            'ka': ['Keen', 'Kaleidoscope', 'Karma', 'Kangaroo', 'Kayak', 'Kazoo', 'Kabob'],
+            'ke': ['Keen', 'Keystone', 'Kept', 'Ketchup', 'Kettle', 'Keeper', 'Kegel'],
+            'kh': ['Khan', 'Khaki', 'Khalifa', 'Khmer', 'Khoikhoi', 'Khomeini', 'Khorasan'],
+            'kl': ['Klaxon', 'Kleenex', 'Klein', 'Kleptomania', 'Klezmer', 'Klick', 'Klingon'],
+            'kn': ['Knight', 'Knave', 'Knapsack', 'Knead', 'Knee', 'Knell', 'Knew'],
+            'ko': ['Koala', 'Koi', 'Kooky', 'Kosher', 'Koan', 'Kodak', 'Kong'],
+            'kr': ['Kraft', 'Kraken', 'Kremlin', 'Krill', 'Krishna', 'Krypton', 'Kronos'],
+            'ku': ['Kudos', 'Kumquat', 'Kung-fu', 'Kundalini', 'Kuiper', 'Kulfi', 'Kumar'],
+            'kw': ['Kwanzaa', 'Kwan', 'Kwame', 'Kwacha', 'Kwai', 'Kwangju', 'Kwajalein'],
+            'ky': ['Kyrie', 'Kyle', 'Kyla', 'Kyoto', 'Kyrie', 'Kyrgyzstan', 'Kyphosis'],
+            'li': ['Lighthearted', 'Limitless', 'Lively', 'Liberty', 'Licorice', 'Lighthouse', 'Lightning'],
+            'me': ['Merry', 'Melodious', 'Merciful', 'Meadow', 'Melody', 'Meteor', 'Mellow'],
+            'mu': ['Musical', 'Magnificent', 'Muse', 'Muffin', 'Mushroom', 'Mustang', 'Mural'],
+            'my': ['Mystical', 'Mythical', 'Mystery', 'Myrtle', 'Myrrh', 'Myriad', 'Mystic'],
+            'ne': ['Neat', 'Neighborly', 'Neon', 'Neptune', 'Nectar', 'Nebula', 'Nest'],
+            'nu': ['Nurturing', 'Nuzzle', 'Nugget', 'Nutmeg', 'Nucleus', 'Numeral', 'Nurse'],
+            'ny': ['Nymph', 'Nylon', 'Nyx', 'Nystagmus', 'Nyala', 'Nyanza', 'Nyssa'],
+            'oa': ['Oasis', 'Oath', 'Oatmeal', 'Oak', 'Oar', 'Oaken', 'Oakland'],
+            'ob': ['Obedient', 'Obliging', 'Observant', 'Obelisk', 'Oboe', 'Observatory', 'Object'],
+            'oc': ['Oceanic', 'Octopus', 'Occasion', 'Occupy', 'Occur', 'Ocean', 'October'],
+            'od': ['Oddly', 'Ode', 'Odessa', 'Odor', 'Odyssey', 'Odin', 'Odometer'],
+            'oe': ['Oedipus', 'Oersted', 'Oeuvre', 'Oesophagus', 'Oestrogen', 'Oenomel', 'Oeconomy'],
+            'of': ['Offbeat', 'Offer', 'Office', 'Officer', 'Official', 'Offset', 'Offspring'],
+            'og': ['Ogre', 'Ogle', 'Ogden', 'Ogham', 'Ogilvy', 'Oglala', 'Oglethorpe'],
+            'oh': ['Ohm', 'Ohio', 'Ohms', 'Oho', 'Ohrmazd', 'Ohrid', 'Ohtani'],
+            'oi': ['Oil', 'Oink', 'Ointment', 'Oilcloth', 'Oilskin', 'Oily', 'Oireachtas'],
+            'oj': ['Ojo', 'Ojibwa', 'Ojibway', 'Ojeda', 'Ojos', 'Ojala', 'Ojai'],
+            'ok': ['Okay', 'Okapi', 'Oklahoma', 'Okra', 'Oksana', 'Okinawa', 'Okefenokee'],
+            'om': ['Omniscient', 'Omen', 'Omega', 'Omelet', 'Omnibus', 'Omni', 'Omaha'],
+            'on': ['Onward', 'Ongoing', 'Onyx', 'Onion', 'Onset', 'Ontario', 'Onslaught'],
+            'oo': ['Oodles', 'Oomph', 'Oops', 'Ooze', 'Oort', 'Oolong', 'Ooh'],
+            'op': ['Opulent', 'Optimistic', 'Opera', 'Opal', 'Opportunity', 'Opposite', 'Optical'],
+            'oq': ['Oquendo', 'Oquossoc', 'Oquirrh', 'Oquaga', 'Oquawka', 'Oqunquit', 'Oquossoc'],
+            'os': ['Outstanding', 'Osmosis', 'Osprey', 'Oscar', 'Oslo', 'Ostrich', 'Ostentatious'],
+            'ot': ['Other', 'Otter', 'Ottoman', 'Otherwise', 'Otherworldly', 'Ottawa', 'Ottava'],
+            'ou': ['Outgoing', 'Outstanding', 'Ouzel', 'Ounce', 'Outback', 'Outcome', 'Outcrop'],
+            'ov': ['Oval', 'Ovation', 'Oven', 'Over', 'Overall', 'Overt', 'Overture'],
+            'ow': ['Owl', 'Owner', 'Owlet', 'Owing', 'Owned', 'Owens', 'Owen'],
+            'ox': ['Oxford', 'Oxygen', 'Ox', 'Oxide', 'Oxidize', 'Oxbow', 'Oxcart'],
+            'oy': ['Oyster', 'Oystercatcher', 'Oyez', 'Oye', 'Oyes', 'Oyo', 'Oyama'],
+            'oz': ['Oz', 'Ozone', 'Ozark', 'Ozzy', 'Ozokerite', 'Ozawa', 'Ozias'],
+            'pi': ['Pioneering', 'Piquant', 'Picturesque', 'Piano', 'Pickle', 'Pilot', 'Pirate'],
+            'pl': ['Pleasant', 'Playful', 'Plucky', 'Plum', 'Planet', 'Platinum', 'Plaza'],
+            'pu': ['Pure', 'Purposeful', 'Punctual', 'Pumpkin', 'Puppy', 'Puzzle', 'Purple'],
+            'py': ['Pyramid', 'Pyrite', 'Python', 'Pyro', 'Pyre', 'Pyrex', 'Pyrenees'],
+            'qi': ['Qi', 'Qigong', 'Qin', 'Qing', 'Qiana', 'Qilin', 'Qintar'],
+            'qo': ['Qoph', 'Qom', 'Qorma', 'Qoheleth', 'Qornet', 'Qore', 'Qormeh'],
+            'ra': ['Radiant', 'Rational', 'Ravishing', 'Rainbow', 'Rascal', 'Raven', 'Raindrop'],
+            'ru': ['Remarkable', 'Resolute', 'Respectable', 'Ruby', 'Ruler', 'Ruffles', 'Rumba'],
+            'ry': ['Rye', 'Ryder', 'Rhythm', 'Ryman', 'Ryokan', 'Ryukyu', 'Ryan'],
+            'sc': ['Scintillating', 'Scholarly', 'Scenic', 'Scout', 'Scarlet', 'Scooter', 'Scone'],
+            'sk': ['Skilled', 'Sky-high', 'Skippy', 'Skittle', 'Skylark', 'Skyrocket', 'Skipping'],
+            'sl': ['Sleek', 'Slick', 'Smooth', 'Slinky', 'Slumber', 'Sloth', 'Slip'],
+            'sn': ['Snappy', 'Snazzy', 'Snugly', 'Snowflake', 'Snickerdoodle', 'Snorkel', 'Snuggle'],
+            'sq': ['Square', 'Squirrel', 'Squire', 'Squadron', 'Squash', 'Squeaky', 'Squid'],
+            'sr': ['Sri', 'Srivastava', 'Sriracha', 'Srinagar', 'Srivatsa', 'Srinivasan', 'Sruti'],
+            'sy': ['Symphonic', 'Systematic', 'Sympathetic', 'Symphony', 'Synergy', 'Syrup', 'Syntax'],
+            'sz': ['Szechuan', 'Szabo', 'Szczecin', 'Szigeti', 'Szell', 'Szeged', 'Szilard'],
+            'th': ['Thorough', 'Thoughtful', 'Thriving', 'Thunder', 'Thistle', 'Thimble', 'Thankful'],
+            'tu': ['Trustworthy', 'Truthful', 'Tuneful', 'Tulip', 'Turquoise', 'Turtle', 'Tuxedo'],
+            'ty': ['Typical', 'Typhoon', 'Tyrant', 'Tycoon', 'Type', 'Typing', 'Tyler'],
+            'ub': ['Uber', 'Ubiquitous', 'Ubuntu', 'Ubermensch', 'Uboat', 'Ubersetzung', 'Ube'],
+            'uc': ['Uchronia', 'Uccello', 'Uclid', 'Uconn', 'Ucayali', 'Uccle', 'Uche'],
+            'ud': ['Udder', 'Udaipur', 'Udall', 'Udine', 'Udmurt', 'Uday', 'Udayan'],
+            'ue': ['Ueda', 'Ueno', 'Uesugi', 'Uehara', 'Uelzen', 'Uecker', 'Uele'],
+            'uf': ['Uffizi', 'Ufo', 'Ufology', 'Ufa', 'Uffington', 'Ufford', 'Uffer'],
+            'ug': ['Uganda', 'Ugly', 'Ugric', 'Ugarit', 'Ugaritic', 'Ugandan', 'Ugli'],
+            'uh': ['Uhlan', 'Uhuru', 'Uhh', 'Uhland', 'Uhura', 'Uhlans', 'Uhaul'],
+            'ui': ['Uighur', 'Uintah', 'Uitlander', 'Uinta', 'Uist', 'Uitenhage', 'Uinta'],
+            'uj': ['Ujiji', 'Ujjain', 'Ujung', 'Ujazdow', 'Ujamaa', 'Ujfalussy', 'Uji'],
+            'uk': ['Ukraine', 'Ukulele', 'Ukase', 'Ukrainians', 'Ukiah', 'Ukelele', 'Uke'],
+            'ul': ['Ultimate', 'Ultra', 'Ulterior', 'Ulysses', 'Ulster', 'Ultramarine', 'Uluru'],
+            'um': ['Umbrella', 'Umpire', 'Umber', 'Umami', 'Umbra', 'Umberto', 'Umbilical'],
+            'un': ['Unique', 'Unified', 'Unconditional', 'Unicorn', 'Universe', 'Unity', 'Uno'],
+            'uo': ['Uomini', 'Uomo', 'Uotsuri', 'Uortep', 'Uostadvares', 'Uosaki', 'Uong'],
+            'up': ['Upbeat', 'Uplifting', 'Upright', 'Uptown', 'Update', 'Upgrade', 'Upload'],
+            'uq': ['Uqbar', 'Uqaylid', 'Uqair', 'Uqqummiut', 'Uqsur', 'Uqlat', 'Uqaylah'],
+            'ur': ['Urban', 'Urbane', 'Urchin', 'Uranus', 'Ursa', 'Uruguay', 'Urgent'],
+            'us': ['Useful', 'Unique', 'Usual', 'Usher', 'Ustinov', 'Utah', 'Usage'],
+            'ut': ['Utopian', 'Utilitarian', 'Utility', 'Utah', 'Utopia', 'Utrecht', 'Utter'],
+            'uu': ['Uuendamine', 'Uusikaupunki', 'Uusimaa', 'Uuno', 'Uutisia', 'Uusi', 'Uuid'],
+            'uv': ['Uvula', 'Uva', 'Uvalde', 'Uvarov', 'Uveal', 'Uvedale', 'Uveitis'],
+            'uw': ['Uwe', 'Uwajima', 'Uwchlan', 'Uwell', 'Uwharrie', 'Uwin', 'Uwingu'],
+            'ux': ['Uxbridge', 'Uxmal', 'Uxorial', 'Uxorious', 'Uxor', 'Uxoriousness', 'Uxoricide'],
+            'uy': ['Uyghur', 'Uyuni', 'Uygur', 'Uyo', 'Uyezd', 'Uyghurs', 'Uygurs'],
+            'uz': ['Uzbek', 'Uzi', 'Uzbekistan', 'Uzume', 'Uzun', 'Uzon', 'Uzice'],
+            'va': ['Valiant', 'Valid', 'Valuable', 'Valentine', 'Vanilla', 'Valiant', 'Vanguard'],
+            'vo': ['Vocal', 'Voracious', 'Voluptuous', 'Volcano', 'Voyage', 'Vortex', 'Voter'],
+            'vu': ['Vulcan', 'Vulnerable', 'Vuvuzela', 'Vulture', 'Vulnerability', 'Vulpine', 'Vulgate'],
+            'vy': ['Vying', 'Vyasa', 'Vyborg', 'Vyatka', 'Vycor', 'Vying', 'Vyner'],
+            'wo': ['Wonderful', 'Worthy', 'Wondrous', 'Woodland', 'Woodpecker', 'Wonder', 'Workshop'],
+            'wr': ['Wrangler', 'Wren', 'Wrestler', 'Wreath', 'Wristband', 'Writer', 'Wrinkle'],
+            'wu': ['Wunderkind', 'Wushu', 'Wuthering', 'Wunderbar', 'Wundt', 'Wulfila', 'Wuxia'],
+            'wy': ['Wyvern', 'Wyoming', 'Wyatt', 'Wynn', 'Wylie', 'Wyndham', 'Wynton'],
+            'xa': ['Xanadu', 'Xanthus', 'Xanax', 'Xanthe', 'Xanthippe', 'Xanten', 'Xanthous'],
+            'xb': ['Xbox', 'Xbase', 'Xband', 'Xbee', 'Xbrl', 'Xbone', 'Xbows'],
+            'xc': ['Xcaret', 'Xcode', 'Xcopy', 'Xcalibur', 'Xcel', 'Xcellent', 'Xcel'],
+            'xd': ['Xdrive', 'Xdsl', 'Xdcc', 'Xden', 'Xdelta', 'Xdesktop', 'Xdvi'],
+            'xe': ['Xenon', 'Xerox', 'Xena', 'Xenophon', 'Xerxes', 'Xenial', 'Xenophile'],
+            'xf': ['Xfactor', 'Xfer', 'Xfce', 'Xfiles', 'Xfire', 'Xfinity', 'Xfig'],
+            'xg': ['Xgames', 'Xgen', 'Xgrid', 'Xgl', 'Xgraph', 'Xgboost', 'Xgmml'],
+            'xh': ['Xhosa', 'Xhtml', 'Xhamster', 'Xhci', 'Xherdan', 'Xhr', 'Xhale'],
+            'xi': ['Xilophone', 'Xingu', 'Xinjiang', 'Xion', 'Xian', 'Xing', 'Ximena'],
+            'xj': ['Xjapan', 'Xjack', 'Xjig', 'Xjit', 'Xjtu', 'Xjaw', 'Xjoint'],
+            'xk': ['Xkcd', 'Xkeys', 'Xkeeper', 'Xkill', 'Xkey', 'Xkms', 'Xkit'],
+            'xl': ['Xlink', 'Xlr', 'Xls', 'Xlsx', 'Xlarge', 'Xlrator', 'Xlpe'],
+            'xm': ['Xmas', 'Xml', 'Xmetal', 'Xmen', 'Xmodem', 'Xmpp', 'Xmission'],
+            'xn': ['Xnor', 'Xnxx', 'Xnview', 'Xnet', 'Xnor', 'Xnova', 'Xname'],
+            'xo': ['Xoxo', 'Xochimilco', 'Xolo', 'Xor', 'Xoom', 'Xochitl', 'Xonotic'],
+            'xp': ['Xperia', 'Xpress', 'Xplane', 'Xplorer', 'Xplosion', 'Xpedition', 'Xperience'],
+            'xq': ['Xquery', 'Xql', 'Xqilla', 'Xquartz', 'Xqsite', 'Xqueue', 'Xquest'],
+            'xr': ['Xray', 'Xref', 'Xresources', 'Xrbia', 'Xronia', 'Xrpl', 'Xross'],
+            'xs': ['Xslt', 'Xsd', 'Xscape', 'Xseries', 'Xseed', 'Xstream', 'Xsport'],
+            'xt': ['Xtreme', 'Xtal', 'Xterra', 'Xtension', 'Xterm', 'Xtina', 'Xtract'],
+            'xu': ['Xuxa', 'Xuzhou', 'Xul', 'Xuan', 'Xuanzang', 'Xubuntu', 'Xuthus'],
+            'xv': ['Xvid', 'Xvideo', 'Xview', 'Xvfb', 'Xvmc', 'Xvnc', 'Xvid'],
+            'xw': ['Xwing', 'Xwindows', 'Xwfe', 'Xwayland', 'Xwiki', 'Xword', 'Xwave'],
+            'xx': ['Xxx', 'Xxl', 'Xxxtentacion', 'Xxxholic', 'Xxxiii', 'Xxxiv', 'Xxxvi'],
+            'xy': ['Xylophone', 'Xylem', 'Xylene', 'Xylitol', 'Xyst', 'Xystus', 'Xystos'],
+            'xz': ['Xzibit', 'Xzone', 'Xzavier', 'Xzander', 'Xzander', 'Xzero', 'Xzavier'],
+            'ya': ['Yay', 'Yacht', 'Yarn', 'Yam', 'Yankee', 'Yasmin', 'Yawning'],
+            'ye': ['Yearning', 'Yell', 'Yellow', 'Yeti', 'Yeoman', 'Yen', 'Yesterday'],
+            'yi': ['Yielding', 'Yippee', 'Yin', 'Yiddish', 'Yield', 'Yikes', 'Yip'],
+            'za': ['Zany', 'Zealous', 'Zap', 'Zamboni', 'Zaza', 'Zambia', 'Zapper'],
+            'zo': ['Zoom', 'Zodiac', 'Zone', 'Zoo', 'Zombie', 'Zonkey', 'Zoology'],
+            'zu': ['Zulu', 'Zucchini', 'Zumba', 'Zurich', 'Zulu', 'Zuma', 'Zuppa'],
+            'zy': ['Zydeco', 'Zygote', 'Zygomatic', 'Zyme', 'Zylon', 'Zymurgy', 'Zyrtec']
+        };
+
+        function generateWhimsicalName() {
+            const input = document.getElementById('nameInput').value.trim();
+            const error = document.getElementById('error');
+            const result = document.getElementById('result');
+            const resultName = document.getElementById('resultName');
+
+            // Validate input
+            if (!input || !/^[a-zA-Z\s]+$/.test(input)) {
+                error.classList.add('show');
+                result.classList.remove('show');
+                return;
+            }
+
+            error.classList.remove('show');
+
+            // Split input into words
+            const words = input.split(/\s+/).filter(word => word.length > 0);
+
+            // Generate whimsical name
+            const whimsicalParts = words.map(word => {
+                const prefix = word.substring(0, 2).toLowerCase();
+                const dictionary = whimsicalDictionary[prefix];
+
+                if (dictionary && dictionary.length > 0) {
+                    // Pick a random word from the dictionary
+                    const randomIndex = Math.floor(Math.random() * dictionary.length);
+                    return dictionary[randomIndex];
+                } else {
+                    // Fallback: capitalize the original word if no match
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                }
+            });
+
+            // Display result
+            resultName.textContent = whimsicalParts.join(' ');
+            result.classList.add('show');
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('nameInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                generateWhimsicalName();
+            }
+        });
+
+        // Focus input on load
+        window.onload = function() {
+            document.getElementById('nameInput').focus();
+        };
+    </script>
+</body>
+</html>
